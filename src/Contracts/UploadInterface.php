@@ -1,45 +1,41 @@
 <?php
 
-namespace YourPackage\Contracts;
+namespace PrimeBeyonder\UploadService\Contracts;
 
 interface UploadInterface
 {
     /**
-     * Upload a file to the storage.
+     * Upload a file to the specified path.
      *
-     * @param mixed  $file   The file instance (could be an instance of UploadedFile or a file path).
-     * @param string $path   The destination path or folder.
-     * @param array  $options Optional parameters for the upload.
-     *
-     * @return mixed Returns the file identifier or URL on success.
+     * @param mixed $file
+     * @param string $path
+     * @param array $options
+     * @return mixed
      */
     public function upload($file, string $path, array $options = []);
 
     /**
-     * Get the URL for a stored file.
+     * Get the URL of a file by its identifier.
      *
-     * @param string $fileIdentifier The identifier or path of the file.
-     *
-     * @return string The accessible URL of the file.
+     * @param string $fileIdentifier
+     * @return string
      */
     public function getUrl(string $fileIdentifier): string;
 
     /**
-     * Delete a stored file.
+     * Delete a file by its identifier.
      *
-     * @param string $fileIdentifier The identifier or path of the file.
-     *
-     * @return bool True on success, false otherwise.
+     * @param string $fileIdentifier
+     * @return bool
      */
     public function delete(string $fileIdentifier): bool;
 
     /**
-     * (Optional) Update file metadata or perform other file related updates.
+     * Update file metadata or properties.
      *
-     * @param string $fileIdentifier The identifier or path of the file.
-     * @param array  $data           Data for updating the file.
-     *
-     * @return mixed Returns the updated file information or boolean status.
+     * @param string $fileIdentifier
+     * @param array $data
+     * @return mixed
      */
     public function update(string $fileIdentifier, array $data);
 }
