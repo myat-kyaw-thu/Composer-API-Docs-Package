@@ -3,9 +3,10 @@
 namespace Primebeyonder\LaravelApiVisibility\Core\Formatter;
 
 use Illuminate\Http\Response;
-use Primebeyonder\LaravelApiVisibility\Contracts\FormatterInterface;
+use Primebeyonder\LaravelApiVisibility\Contracts\FormatterInterface as ContractsFormatterInterface;
+use Vendor\ApiVisibility\Contracts\FormatterInterface;
 
-class JsonFormatter implements FormatterInterface
+class JsonFormatter implements ContractsFormatterInterface
 {
     /**
      * Format a response.
@@ -37,8 +38,13 @@ class JsonFormatter implements FormatterInterface
     {
         $contentType = $response->headers->get('Content-Type');
 
-        return strpos($contentType, 'application/json') !== false ||
-            $this->looksLikeJson($response->getContent());
+        // Check if content type contains application/json
+        if ($contentType && strpos($contentType, 'application/json') !== false) {
+            return true;
+        }
+
+        // If no content type or not JSON content type, check if content looks like JSON
+        return $this->looksLikeJson($response->getContent());
     }
 
     /**
@@ -51,9 +57,16 @@ class JsonFormatter implements FormatterInterface
     {
         $content = trim($content);
 
-        return (
-            (str_starts_with($content, '{') && str_ends_with($content, '}')) ||
-            (str_starts_with($content, '[') && str_ends_with($content, ']'))
-        ) && json_decode($content) !== null;
+        // Check if content starts with { or [ and ends with } or ]
+        $startsWithBrace = str_starts_with($content, '{') && str_ends_with($content, '}');
+        $startsWithBracket = str_starts_with($content, '[') && str_ends_with($content, ']');
+
+        if ($startsWithBrace || $startsWithBracket) {
+            // Try to decode it to make sure it's valid JSON
+            json_decode($content);
+            return json_last_error() === JSON_ERROR_NONE;
+        }
+
+        return false;
     }
 }
