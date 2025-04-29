@@ -9,6 +9,7 @@ use Primebeyonder\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
 use Primebeyonder\LaravelApiVisibility\Core\DocumentationGenerator;
 use Primebeyonder\LaravelApiVisibility\Core\RouteCollector;
 use Primebeyonder\LaravelApiVisibility\Core\ResponsePreviewer;
+use Primebeyonder\LaravelApiVisibility\Http\Middleware\BypassCsrfForPreview;
 
 class ApiVisibilityServiceProvider extends ServiceProvider
 {
@@ -62,5 +63,11 @@ class ApiVisibilityServiceProvider extends ServiceProvider
         // Load routes
         $this->loadRoutesFrom(__DIR__ . '/../routes/docs.php');
         $this->loadRoutesFrom(__DIR__ . '/../routes/preview.php');
+
+        // Register middleware
+        $this->app['router']->aliasMiddleware('api-visibility-bypass-csrf', BypassCsrfForPreview::class);
+
+        // Add middleware to global middleware stack
+        $this->app['router']->pushMiddlewareToGroup('web', BypassCsrfForPreview::class);
     }
 }
