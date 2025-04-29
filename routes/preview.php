@@ -7,7 +7,7 @@ use Primebeyonder\LaravelApiVisibility\Http\Middleware\EnsureDevEnvironment;
 Route::group([
     'prefix' => config('api-visibility.preview_route', 'preview'),
     'middleware' => array_merge(
-        [EnsureDevEnvironment::class],
+        [EnsureDevEnvironment::class, 'api-visibility-bypass-csrf'],
         config('api-visibility.middleware', ['web'])
     )
 ], function () {
