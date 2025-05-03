@@ -8,10 +8,15 @@
         :root {
             --primary: #3a86ff;
             --primary-dark: #2667cc;
+            --primary-light: rgba(58, 134, 255, 0.1);
             --secondary: #8338ec;
             --success: #06d6a0;
             --warning: #ffbe0b;
+            --warning-light: #fff3cd;
+            --warning-dark: #856404;
             --danger: #ef476f;
+            --danger-light: #ffdce0;
+            --danger-dark: #86181d;
             --light: #f8f9fa;
             --dark: #212529;
             --gray: #6c757d;
@@ -170,7 +175,7 @@
         }
 
         .route-link.active {
-            background-color: rgba(58, 134, 255, 0.1);
+            background-color: var(--primary-light);
             border-left: 3px solid var(--primary);
         }
 
@@ -491,8 +496,8 @@
         }
 
         .error {
-            background-color: #ffdce0;
-            color: #86181d;
+            background-color: var(--danger-light);
+            color: var(--danger-dark);
             padding: 15px;
             border-radius: var(--border-radius);
             margin-bottom: 15px;
@@ -524,6 +529,174 @@
         .empty-state-description {
             font-size: 14px;
             max-width: 400px;
+        }
+
+        /* New styles for required parameters */
+        .required-indicator {
+            color: var(--danger);
+            margin-left: 3px;
+            font-weight: bold;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: var(--border-radius);
+        }
+
+        .alert-warning {
+            color: var(--warning-dark);
+            background-color: var(--warning-light);
+            border-color: #ffeeba;
+        }
+
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        .alert ul {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-left: 20px;
+        }
+
+        .alert p {
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .badge-required {
+            background-color: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .badge-optional {
+            background-color: var(--gray-light);
+            color: var(--gray);
+        }
+
+        .param-type {
+            font-size: 12px;
+            color: var(--gray);
+            margin-left: 5px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .param-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .param-info svg {
+            margin-left: 5px;
+            color: var(--gray);
+        }
+
+        .route-params-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .route-params-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .route-param-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .route-param-name {
+            font-family: var(--font-mono);
+            font-weight: 500;
+            margin-right: 5px;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .copy-btn svg {
+            margin-right: 5px;
+        }
+
+        .copy-btn:hover {
+            color: var(--primary-dark);
+        }
+
+        .copy-success {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .copy-success.show {
+            opacity: 1;
         }
 
         @media (max-width: 768px) {
@@ -606,12 +779,40 @@
                     $selectedRouteInfo = collect($routes)->firstWhere('name', $selectedRoute);
                     $method = $selectedRouteInfo ? $selectedRouteInfo['methods'][0] : 'GET';
                     $hasRequestBody = in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE']);
+
+                    // Extract required parameters from route URI
+                    $requiredParams = [];
+                    if (isset($selectedRouteInfo['uri'])) {
+                        preg_match_all('/\{([^?}]+)(?:\:[^}]+)?\}/', $selectedRouteInfo['uri'], $matches);
+                        if (isset($matches[1])) {
+                            $requiredParams = $matches[1];
+                        }
+                    }
+
+                    // Extract optional parameters from route URI
+                    $optionalParams = [];
+                    if (isset($selectedRouteInfo['uri'])) {
+                        preg_match_all('/\{([^}]+\?)(?:\:[^}]+)?\}/', $selectedRouteInfo['uri'], $matches);
+                        if (isset($matches[1])) {
+                            $optionalParams = array_map(function($param) {
+                                return rtrim($param, '?');
+                            }, $matches[1]);
+                        }
+                    }
                 @endphp
 
                 <div class="route-info">
                     <div class="route-info-header">
                         <span class="method {{ strtolower($method) }}">{{ $method }}</span>
                         <h2 class="route-info-title">{{ $selectedRouteInfo['uri'] }}</h2>
+
+                        <button class="copy-btn" data-clipboard-text="{{ url($selectedRouteInfo['uri']) }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Copy URL
+                        </button>
                     </div>
                     <div class="route-info-details">
                         <div class="route-info-detail">
@@ -631,45 +832,131 @@
                             </div>
                         @endif
                     </div>
+
+                    @if(!empty($requiredParams) || !empty($optionalParams))
+                        <div class="route-params-section">
+                            <div class="route-params-title">Route Parameters</div>
+                            @foreach($requiredParams as $param)
+                                <div class="route-param-item">
+                                    <span class="route-param-name">{{ $param }}</span>
+                                    <span class="badge badge-required">Required</span>
+                                </div>
+                            @endforeach
+                            @foreach($optionalParams as $param)
+                                <div class="route-param-item">
+                                    <span class="route-param-name">{{ $param }}</span>
+                                    <span class="badge badge-optional">Optional</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
 
-                @if($hasRequestBody)
-                    <div class="form-container">
-                        <div class="form-header">
-                            Request Parameters
-                        </div>
-                        <div class="form-body">
-                            <form id="previewForm" method="GET" action="{{ route('api-visibility.preview.show', ['routeName' => $selectedRoute]) }}">
-                                @if(!empty($selectedRouteInfo['validation_rules']))
-                                    @foreach($selectedRouteInfo['validation_rules'] as $field => $rules)
-                                        <div class="form-group">
-                                            <label class="form-label" for="{{ $field }}">{{ $field }}</label>
-                                            <input type="text" id="{{ $field }}" name="{{ $field }}" class="form-input" placeholder="Enter {{ $field }}">
-                                            <div class="form-hint">Rules: {{ is_array($rules) ? implode(' | ', $rules) : $rules }}</div>
-                                        </div>
-                                    @endforeach
-                                @else
-                                    <div class="form-group">
-                                        <label class="form-label">Custom Parameters</label>
-                                        <div class="form-hint">No validation rules defined. Add parameters as needed:</div>
-                                        <div id="dynamic-params" class="dynamic-params">
-                                            <div class="dynamic-param-row">
-                                                <input type="text" name="param_key[]" class="form-input" placeholder="Parameter name" style="flex: 1;">
-                                                <input type="text" name="param_value[]" class="form-input" placeholder="Value" style="flex: 1;">
-                                                <button type="button" class="btn btn-outline remove-param" style="display: none;">✕</button>
-                                            </div>
-                                        </div>
-                                        <button type="button" id="add-param" class="btn btn-outline" style="margin-top: 10px;">Add Parameter</button>
-                                    </div>
-                                @endif
-                                <div class="form-actions">
-                                    <button type="reset" class="btn btn-outline">Reset</button>
-                                    <button type="submit" class="btn btn-primary">Send Request</button>
-                                </div>
-                            </form>
-                        </div>
+                @if(isset($error) && isset($error['missing_parameters']))
+                    <div class="alert alert-warning">
+                        <strong>Missing Required Parameters:</strong>
+                        <ul>
+                            @foreach($error['missing_parameters'] as $param)
+                                <li>{{ $param }}</li>
+                            @endforeach
+                        </ul>
+                        <p>Please provide values for all required parameters.</p>
                     </div>
                 @endif
+
+                <div class="form-container">
+                    <div class="form-header">
+                        Request Parameters
+                    </div>
+                    <div class="form-body">
+                        <form id="previewForm" method="GET" action="{{ route('api-visibility.preview.show', ['routeName' => $selectedRoute]) }}">
+                            @if(!empty($requiredParams) || !empty($optionalParams))
+                                <div class="alert alert-info">
+                                    This route contains parameters in the URI. Please provide values for them below.
+                                </div>
+
+                                @foreach($requiredParams as $param)
+                                    <div class="form-group">
+                                        <div class="param-info">
+                                            <label class="form-label" for="{{ $param }}">
+                                                {{ $param }} <span class="required-indicator">*</span>
+                                            </label>
+                                            <div class="tooltip">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                                </svg>
+                                                <span class="tooltip-text">Required parameter from route URI</span>
+                                            </div>
+                                        </div>
+                                        <input type="text" id="{{ $param }}" name="{{ $param }}" class="form-input" placeholder="Enter {{ $param }}" required>
+                                        <div class="form-hint">Required route parameter</div>
+                                    </div>
+                                @endforeach
+
+                                @foreach($optionalParams as $param)
+                                    <div class="form-group">
+                                        <div class="param-info">
+                                            <label class="form-label" for="{{ $param }}">
+                                                {{ $param }} <span class="badge badge-optional">Optional</span>
+                                            </label>
+                                            <div class="tooltip">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                                </svg>
+                                                <span class="tooltip-text">Optional parameter from route URI</span>
+                                            </div>
+                                        </div>
+                                        <input type="text" id="{{ $param }}" name="{{ $param }}" class="form-input" placeholder="Enter {{ $param }} (optional)">
+                                        <div class="form-hint">Optional route parameter</div>
+                                    </div>
+                                @endforeach
+                            @endif
+
+                            @if(!empty($selectedRouteInfo['validation_rules']))
+                                <div class="alert alert-info">
+                                    This route has validation rules. Please provide valid values for the parameters.
+                                </div>
+
+                                @foreach($selectedRouteInfo['validation_rules'] as $field => $rules)
+                                    <div class="form-group">
+                                        <div class="param-info">
+                                            <label class="form-label" for="{{ $field }}">
+                                                {{ $field }}
+                                                @if(is_array($rules) && in_array('required', $rules) || strpos($rules, 'required') !== false)
+                                                    <span class="required-indicator">*</span>
+                                                @endif
+                                            </label>
+                                        </div>
+                                        <input type="text" id="{{ $field }}" name="{{ $field }}" class="form-input" placeholder="Enter {{ $field }}"
+                                            @if(is_array($rules) && in_array('required', $rules) || strpos($rules, 'required') !== false) required @endif>
+                                        <div class="form-hint">Rules: {{ is_array($rules) ? implode(' | ', $rules) : $rules }}</div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="form-group">
+                                    <label class="form-label">Custom Parameters</label>
+                                    <div class="form-hint">Add additional parameters as needed:</div>
+                                    <div id="dynamic-params" class="dynamic-params">
+                                        <div class="dynamic-param-row">
+                                            <input type="text" name="param_key[]" class="form-input" placeholder="Parameter name" style="flex: 1;">
+                                            <input type="text" name="param_value[]" class="form-input" placeholder="Value" style="flex: 1;">
+                                            <button type="button" class="btn btn-outline remove-param" style="display: none;">✕</button>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="add-param" class="btn btn-outline" style="margin-top: 10px;">Add Parameter</button>
+                                </div>
+                            @endif
+                            <div class="form-actions">
+                                <button type="reset" class="btn btn-outline">Reset</button>
+                                <button type="submit" class="btn btn-primary">Send Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 @if(isset($result))
                     <div class="response-container">
@@ -686,6 +973,13 @@
                                         {{ $result['status'] }}
                                     </span>
                                     <span class="response-time">Response time: <span id="response-time">0</span> ms</span>
+                                    <button class="copy-btn" data-clipboard-target="#json-response">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                        </svg>
+                                        Copy Response
+                                    </button>
                                 </div>
                                 <pre class="response-data" id="json-response">{{ $result['formatted'] }}</pre>
                             </div>
@@ -753,6 +1047,8 @@
             @endif
         </div>
     </div>
+
+    <div class="copy-success" id="copy-notification">Copied to clipboard!</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -877,6 +1173,33 @@
             if (responseTimeElement) {
                 responseTimeElement.textContent = Math.floor(Math.random() * 500) + 50;
             }
+
+            // Copy to clipboard functionality
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const copyText = this.getAttribute('data-clipboard-text');
+                    const targetId = this.getAttribute('data-clipboard-target');
+                    let textToCopy = '';
+
+                    if (copyText) {
+                        textToCopy = copyText;
+                    } else if (targetId) {
+                        const target = document.querySelector(targetId);
+                        textToCopy = target.textContent;
+                    }
+
+                    if (textToCopy) {
+                        navigator.clipboard.writeText(textToCopy).then(() => {
+                            const notification = document.getElementById('copy-notification');
+                            notification.classList.add('show');
+
+                            setTimeout(() => {
+                                notification.classList.remove('show');
+                            }, 2000);
+                        });
+                    }
+                });
+            });
         });
     </script>
 </body>
