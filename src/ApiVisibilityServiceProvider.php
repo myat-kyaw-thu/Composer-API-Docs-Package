@@ -10,6 +10,7 @@ use Primebeyonder\LaravelApiVisibility\Core\DocumentationGenerator;
 use Primebeyonder\LaravelApiVisibility\Core\RouteCollector;
 use Primebeyonder\LaravelApiVisibility\Core\ResponsePreviewer;
 use Primebeyonder\LaravelApiVisibility\Http\Middleware\BypassCsrfForPreview;
+use Primebeyonder\LaravelApiVisibility\Support\ErrorHandler;
 
 class ApiVisibilityServiceProvider extends ServiceProvider
 {
@@ -22,14 +23,18 @@ class ApiVisibilityServiceProvider extends ServiceProvider
     {
         // Merge config
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/api-visibility.php',
-            'api-visibility'
+            __DIR__ . '/../config/api-visibility.php', 'api-visibility'
         );
 
         // Bind interfaces to implementations
         $this->app->bind(RouteCollectorInterface::class, RouteCollector::class);
         $this->app->bind(DocumentationGeneratorInterface::class, DocumentationGenerator::class);
         $this->app->bind(ResponsePreviewerInterface::class, ResponsePreviewer::class);
+
+        // Register the error handler
+        $this->app->singleton(ErrorHandler::class, function () {
+            return new ErrorHandler();
+        });
 
         // Register the facade
         $this->app->singleton('api-visibility', function ($app) {
