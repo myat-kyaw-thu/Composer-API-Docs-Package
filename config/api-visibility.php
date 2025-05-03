@@ -1,79 +1,70 @@
 <?php
 
+// use Primebeyonder\LaravelApiVisibility\Core\Formatter\
+use Primebeyonder\LaravelApiVisibility\Core\Formatter\JsonFormatter;
+
 return [
     /*
     |--------------------------------------------------------------------------
-    | Documentation Route
+    | API Visibility Configuration
     |--------------------------------------------------------------------------
     |
-    | This is the URI path where API documentation will be accessible from.
-    |
-    */
-    'docs_route' => '/docs',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Preview Route
-    |--------------------------------------------------------------------------
-    |
-    | This is the URI path where API response previews will be accessible from.
+    | This file contains the configuration for the Laravel API Visibility package.
     |
     */
-    'preview_route' => '/preview',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Enable Preview
-    |--------------------------------------------------------------------------
-    |
-    | Determines whether the preview functionality is enabled.
-    |
-    */
-    'enable_preview' => true,
+    // Enable or disable the API documentation
+    'enabled' => env('API_VISIBILITY_ENABLED', true),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Middleware
-    |--------------------------------------------------------------------------
-    |
-    | The middleware that will be applied to the documentation and preview routes.
-    |
-    */
-    'middleware' => ['web'],
+    // Enable or disable the API response preview feature
+    'enable_preview' => env('API_VISIBILITY_PREVIEW_ENABLED', true),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Allow in Production
-    |--------------------------------------------------------------------------
-    |
-    | Determines whether API Visibility is enabled in production environment.
-    | It's recommended to disable this in production for security reasons.
-    |
-    */
-    'allow_in_production' => false,
+    // Route prefix for the documentation and preview
+    'route_prefix' => env('API_VISIBILITY_ROUTE_PREFIX', ''),
 
-        /*
-    |--------------------------------------------------------------------------
-    | Route Exclusion Settings
-    |--------------------------------------------------------------------------
-    |
-    | Configure which routes should be excluded from API documentation
-    */
-
-    'exclude_middleware' => [
-        'auth',
-        'auth:api',
+    // Middleware for the documentation and preview routes
+    'middleware' => [
+        'web',
     ],
 
+    // Exclude routes with these middleware
+    'exclude_middleware' => [
+        'auth.basic',
+    ],
+
+    // Exclude routes with these URIs
     'exclude_uris' => [
         '/',          // Default home route
         'docs',       // Documentation routes
         'preview',    // Documentation preview
-        "preview/{routeName}", // Documentation preview with route name
+        'preview/{routeName}', // Documentation preview with route name
+        '_ignition/health-check',
+        '_ignition/execute-solution',
+        '_ignition/update-config',
+        'sanctum/csrf-cookie',
+        'livewire/upload-file',
+        'livewire/livewire.js',
+        'livewire/livewire.js.map',
     ],
 
-    'exclude_uri_patterns' => [
-        '/^storage\/.*/',    // Storage routes
+    // Exclude routes with these prefixes
+    'exclude_prefixes' => [
+        '_debugbar',
+        '_ignition',
     ],
 
+    // Exclude routes with controllers in these namespaces
+    'exclude_namespaces' => [
+        'Laravel\Sanctum',
+        'Laravel\Fortify',
+        'Laravel\Jetstream',
+        'Laravel\Horizon',
+        'Laravel\Nova',
+    ],
+
+    // Custom formatters for response preview
+    'formatters' => [
+        'json' =>JsonFormatter::class,
+        // 'html' => HtmlFormatter::class,
+    ],
 ];
