@@ -18,4 +18,11 @@ interface RouteCollectorInterface
      * @return array|null
      */
     public function getRouteByName(string $name): ?array;
+
+    /**
+     * Get all named routes.
+     *
+     * @return array
+     */
+    public function getNamedRoutes(): array;
 }
