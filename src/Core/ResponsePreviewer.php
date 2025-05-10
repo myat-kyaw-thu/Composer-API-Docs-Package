@@ -323,6 +323,6 @@ class ResponsePreviewer implements ResponsePreviewerInterface
     protected function isJsonResponse(Response $response): bool
     {
         return $response instanceof JsonResponse ||
-               strpos($response->headers->get('Content-Type', ''), 'application/json') !== false;
+            strpos($response->headers->get('Content-Type', ''), 'application/json') !== false;
     }
 }
