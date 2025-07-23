@@ -1,11 +1,11 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Support;
+namespace myatKyawThu\LaravelApiVisibility\Support;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Primebeyonder\LaravelApiVisibility\Exceptions\ApiVisibilityException;
-use Primebeyonder\LaravelApiVisibility\Exceptions\RouteParameterMissingException;
+use myatKyawThu\LaravelApiVisibility\Exceptions\ApiVisibilityException;
+use myatKyawThu\LaravelApiVisibility\Exceptions\RouteParameterMissingException;
 use Throwable;
 
 class ErrorHandler
@@ -28,7 +28,7 @@ class ErrorHandler
     /**
      * Handle an API Visibility exception.
      *
-     * @param \Primebeyonder\LaravelApiVisibility\Exceptions\ApiVisibilityException $exception
+     * @param \myatKyawThu\LaravelApiVisibility\Exceptions\ApiVisibilityException $exception
      * @return array
      */
     protected function handleApiVisibilityException(ApiVisibilityException $exception): array

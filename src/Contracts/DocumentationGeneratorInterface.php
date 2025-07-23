@@ -1,6 +1,6 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Contracts;
+namespace myatKyawThu\LaravelApiVisibility\Contracts;
 
 interface DocumentationGeneratorInterface
 {

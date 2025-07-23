@@ -1,9 +1,9 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Core\Formatter;
+namespace myatKyawThu\LaravelApiVisibility\Core\Formatter;
 
 use Illuminate\Http\Response;
-use Primebeyonder\LaravelApiVisibility\Contracts\FormatterInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\FormatterInterface;
 
 class MarkdownFormatter implements FormatterInterface
 {

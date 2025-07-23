@@ -1,15 +1,15 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Tests\Unit\Core;
+namespace myatKyawThu\LaravelApiVisibility\Tests\Unit\Core;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Router;
 use Mockery;
-use Primebeyonder\LaravelApiVisibility\Contracts\FormatterInterface;
-use Primebeyonder\LaravelApiVisibility\Contracts\RouteCollectorInterface;
-use Primebeyonder\LaravelApiVisibility\Core\ResponsePreviewer;
-use Primebeyonder\LaravelApiVisibility\Tests\TestCase;
+use myatKyawThu\LaravelApiVisibility\Contracts\FormatterInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface;
+use myatKyawThu\LaravelApiVisibility\Core\ResponsePreviewer;
+use myatKyawThu\LaravelApiVisibility\Tests\TestCase;
 
 class ResponsePreviewerTest extends TestCase
 {

@@ -1,7 +1,6 @@
 <?php
 
-// use Primebeyonder\LaravelApiVisibility\Core\Formatter\
-use Primebeyonder\LaravelApiVisibility\Core\Formatter\JsonFormatter;
+use myatKyawThu\LaravelApiVisibility\Core\Formatter\JsonFormatter;
 
 return [
     /*
@@ -64,7 +63,7 @@ return [
 
     // Custom formatters for response preview
     'formatters' => [
-        'json' =>JsonFormatter::class,
+        'json' => JsonFormatter::class,
         // 'html' => HtmlFormatter::class,
     ],
 ];

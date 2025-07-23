@@ -1,12 +1,11 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Core\Formatter;
+namespace myatKyawThu\LaravelApiVisibility\Core\Formatter;
 
 use Illuminate\Http\Response;
-use Primebeyonder\LaravelApiVisibility\Contracts\FormatterInterface as ContractsFormatterInterface;
-use Vendor\ApiVisibility\Contracts\FormatterInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\FormatterInterface;
 
-class JsonFormatter implements ContractsFormatterInterface
+class JsonFormatter implements FormatterInterface
 {
     /**
      * Format a response.

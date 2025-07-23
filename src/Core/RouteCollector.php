@@ -1,13 +1,13 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Core;
+namespace myatKyawThu\LaravelApiVisibility\Core;
 
 use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionMethod;
-use Primebeyonder\LaravelApiVisibility\Contracts\RouteCollectorInterface;
-use Primebeyonder\LaravelApiVisibility\Support\ValidationExtractor;
+use myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface;
+use myatKyawThu\LaravelApiVisibility\Support\ValidationExtractor;
 
 class RouteCollector implements RouteCollectorInterface
 {
@@ -182,7 +182,7 @@ class RouteCollector implements RouteCollectorInterface
         $action = $route->getAction();
 
         // Check controller namespace
-        if (isset($action['controller']) && strpos($action['controller'], 'Primebeyonder\\LaravelApiVisibility\\') === 0) {
+        if (isset($action['controller']) && strpos($action['controller'], 'myatKyawThu\\LaravelApiVisibility\\') === 0) {
             return true;
         }
 
@@ -235,9 +235,19 @@ class RouteCollector implements RouteCollectorInterface
 
         // Check for common framework routes
         $frameworkRouteNames = [
-            'login', 'logout', 'register', 'password.request', 'password.email',
-            'password.reset', 'password.update', 'password.confirm', 'verification.notice',
-            'verification.verify', 'verification.resend', 'home', 'sanctum.',
+            'login',
+            'logout',
+            'register',
+            'password.request',
+            'password.email',
+            'password.reset',
+            'password.update',
+            'password.confirm',
+            'verification.notice',
+            'verification.verify',
+            'verification.resend',
+            'home',
+            'sanctum.',
         ];
 
         $name = $route->getName();

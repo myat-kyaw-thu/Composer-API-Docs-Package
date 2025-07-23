@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Primebeyonder\LaravelApiVisibility\Http\Controllers\PreviewController;
-use Primebeyonder\LaravelApiVisibility\Http\Middleware\EnsureDevEnvironment;
+use myatKyawThu\LaravelApiVisibility\Http\Controllers\PreviewController;
+use myatKyawThu\LaravelApiVisibility\Http\Middleware\EnsureDevEnvironment;
 
 Route::group([
     'prefix' => config('api-visibility.preview_route', 'preview'),

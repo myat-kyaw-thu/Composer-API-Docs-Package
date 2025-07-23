@@ -1,9 +1,9 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Tests;
+namespace myatKyawThu\LaravelApiVisibility\Tests;
 
 use Orchestra\Testbench\TestCase as BaseTestCase;
-use Primebeyonder\LaravelApiVisibility\ApiVisibilityServiceProvider;
+use myatKyawThu\LaravelApiVisibility\ApiVisibilityServiceProvider;
 
 abstract class TestCase extends BaseTestCase
 {

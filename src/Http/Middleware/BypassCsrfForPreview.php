@@ -1,6 +1,6 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Http\Middleware;
+namespace myatKyawThu\LaravelApiVisibility\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

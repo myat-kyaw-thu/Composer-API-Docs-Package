@@ -1,14 +1,14 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Http\Controllers;
+namespace myatKyawThu\LaravelApiVisibility\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Routing\Router;
-use Primebeyonder\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
-use Primebeyonder\LaravelApiVisibility\Contracts\RouteCollectorInterface;
-use Primebeyonder\LaravelApiVisibility\Exceptions\RouteParameterMissingException;
-use Primebeyonder\LaravelApiVisibility\Support\ErrorHandler;
+use myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface;
+use myatKyawThu\LaravelApiVisibility\Exceptions\RouteParameterMissingException;
+use myatKyawThu\LaravelApiVisibility\Support\ErrorHandler;
 use Throwable;
 
 class PreviewController extends Controller
@@ -16,14 +16,14 @@ class PreviewController extends Controller
     /**
      * The route collector instance.
      *
-     * @var \Primebeyonder\LaravelApiVisibility\Contracts\RouteCollectorInterface
+     * @var \myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface
      */
     protected $routeCollector;
 
     /**
      * The response previewer instance.
      *
-     * @var \Primebeyonder\LaravelApiVisibility\Contracts\ResponsePreviewerInterface
+     * @var \myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface
      */
     protected $responsePreviewer;
 
@@ -37,15 +37,15 @@ class PreviewController extends Controller
     /**
      * The error handler instance.
      *
-     * @var \Primebeyonder\LaravelApiVisibility\Support\ErrorHandler
+     * @var \myatKyawThu\LaravelApiVisibility\Support\ErrorHandler
      */
     protected $errorHandler;
 
     /**
      * Create a new controller instance.
      *
-     * @param \Primebeyonder\LaravelApiVisibility\Contracts\RouteCollectorInterface $routeCollector
-     * @param \Primebeyonder\LaravelApiVisibility\Contracts\ResponsePreviewerInterface $responsePreviewer
+     * @param \myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface $routeCollector
+     * @param \myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface $responsePreviewer
      * @param \Illuminate\Routing\Router $router
      * @return void
      */
@@ -144,7 +144,7 @@ class PreviewController extends Controller
      * @param array $parameters
      * @return void
      *
-     * @throws \Primebeyonder\LaravelApiVisibility\Exceptions\RouteParameterMissingException
+     * @throws \myatKyawThu\LaravelApiVisibility\Exceptions\RouteParameterMissingException
      */
     protected function checkRequiredParameters($route, array $parameters)
     {

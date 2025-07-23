@@ -1,19 +1,19 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Core;
+namespace myatKyawThu\LaravelApiVisibility\Core;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Auth;
-use Primebeyonder\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
-use Primebeyonder\LaravelApiVisibility\Exceptions\AuthenticationException;
-use Primebeyonder\LaravelApiVisibility\Exceptions\InvalidResponseException;
-use Primebeyonder\LaravelApiVisibility\Exceptions\RouteNotFoundException;
-use Primebeyonder\LaravelApiVisibility\Exceptions\RouteParameterMissingException;
-use Primebeyonder\LaravelApiVisibility\Exceptions\ValidationException;
-use Primebeyonder\LaravelApiVisibility\Support\ErrorHandler;
+use myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
+use myatKyawThu\LaravelApiVisibility\Exceptions\AuthenticationException;
+use myatKyawThu\LaravelApiVisibility\Exceptions\InvalidResponseException;
+use myatKyawThu\LaravelApiVisibility\Exceptions\RouteNotFoundException;
+use myatKyawThu\LaravelApiVisibility\Exceptions\RouteParameterMissingException;
+use myatKyawThu\LaravelApiVisibility\Exceptions\ValidationException;
+use myatKyawThu\LaravelApiVisibility\Support\ErrorHandler;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -29,7 +29,7 @@ class ResponsePreviewer implements ResponsePreviewerInterface
     /**
      * The error handler instance.
      *
-     * @var \Primebeyonder\LaravelApiVisibility\Support\ErrorHandler
+     * @var \myatKyawThu\LaravelApiVisibility\Support\ErrorHandler
      */
     protected $errorHandler;
 
@@ -82,7 +82,7 @@ class ResponsePreviewer implements ResponsePreviewerInterface
      * @param string $name
      * @return \Illuminate\Routing\Route
      *
-     * @throws \Primebeyonder\LaravelApiVisibility\Exceptions\RouteNotFoundException
+     * @throws \myatKyawThu\LaravelApiVisibility\Exceptions\RouteNotFoundException
      */
     protected function findRouteByName(string $name): Route
     {
@@ -102,7 +102,7 @@ class ResponsePreviewer implements ResponsePreviewerInterface
      * @param array $parameters
      * @return void
      *
-     * @throws \Primebeyonder\LaravelApiVisibility\Exceptions\RouteParameterMissingException
+     * @throws \myatKyawThu\LaravelApiVisibility\Exceptions\RouteParameterMissingException
      */
     protected function checkRequiredParameters(Route $route, array $parameters): void
     {
@@ -239,7 +239,7 @@ class ResponsePreviewer implements ResponsePreviewerInterface
      * @param \Illuminate\Routing\Route $route
      * @return \Symfony\Component\HttpFoundation\Response
      *
-     * @throws \Primebeyonder\LaravelApiVisibility\Exceptions\InvalidResponseException
+     * @throws \myatKyawThu\LaravelApiVisibility\Exceptions\InvalidResponseException
      */
     protected function dispatchRequest(Request $request, Route $route): Response
     {

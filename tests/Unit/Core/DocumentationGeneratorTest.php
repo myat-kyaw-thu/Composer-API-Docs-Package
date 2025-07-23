@@ -1,12 +1,12 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Tests\Unit\Core;
+namespace myatKyawThu\LaravelApiVisibility\Tests\Unit\Core;
 
 use Mockery;
-use Primebeyonder\LaravelApiVisibility\Contracts\RouteCollectorInterface;
-use Primebeyonder\LaravelApiVisibility\Core\DocumentationGenerator;
-use Primebeyonder\LaravelApiVisibility\Support\RouteGrouping;
-use Primebeyonder\LaravelApiVisibility\Tests\TestCase;
+use myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface;
+use myatKyawThu\LaravelApiVisibility\Core\DocumentationGenerator;
+use myatKyawThu\LaravelApiVisibility\Support\RouteGrouping;
+use myatKyawThu\LaravelApiVisibility\Tests\TestCase;
 
 class DocumentationGeneratorTest extends TestCase
 {

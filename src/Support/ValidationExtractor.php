@@ -1,6 +1,6 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Support;
+namespace myatKyawThu\LaravelApiVisibility\Support;
 
 use Illuminate\Foundation\Http\FormRequest;
 use ReflectionClass;

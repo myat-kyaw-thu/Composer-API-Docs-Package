@@ -1,16 +1,16 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility;
+namespace myatKyawThu\LaravelApiVisibility;
 
 use Illuminate\Support\ServiceProvider;
-use Primebeyonder\LaravelApiVisibility\Contracts\DocumentationGeneratorInterface;
-use Primebeyonder\LaravelApiVisibility\Contracts\RouteCollectorInterface;
-use Primebeyonder\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
-use Primebeyonder\LaravelApiVisibility\Core\DocumentationGenerator;
-use Primebeyonder\LaravelApiVisibility\Core\RouteCollector;
-use Primebeyonder\LaravelApiVisibility\Core\ResponsePreviewer;
-use Primebeyonder\LaravelApiVisibility\Http\Middleware\BypassCsrfForPreview;
-use Primebeyonder\LaravelApiVisibility\Support\ErrorHandler;
+use myatKyawThu\LaravelApiVisibility\Contracts\DocumentationGeneratorInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
+use myatKyawThu\LaravelApiVisibility\Core\DocumentationGenerator;
+use myatKyawThu\LaravelApiVisibility\Core\RouteCollector;
+use myatKyawThu\LaravelApiVisibility\Core\ResponsePreviewer;
+use myatKyawThu\LaravelApiVisibility\Http\Middleware\BypassCsrfForPreview;
+use myatKyawThu\LaravelApiVisibility\Support\ErrorHandler;
 
 class ApiVisibilityServiceProvider extends ServiceProvider
 {
@@ -23,7 +23,8 @@ class ApiVisibilityServiceProvider extends ServiceProvider
     {
         // Merge config
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/api-visibility.php', 'api-visibility'
+            __DIR__ . '/../config/api-visibility.php',
+            'api-visibility'
         );
 
         // Bind interfaces to implementations

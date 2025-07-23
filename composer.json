@@ -1,5 +1,5 @@
 {
-  "name": "primebeyonder/laravel-api-visibility",
+  "name": "myat-kyaw-thu/laravel-api-visibility",
   "description": "Automatic API route documentation and live previewing for Laravel applications",
   "type": "library",
   "license": "MIT",
@@ -9,12 +9,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Primebeyonder\\LaravelApiVisibility\\": "src/"
+      "myatKyawThu\\LaravelApiVisibility\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Primebeyonder\\LaravelApiVisibility\\Tests\\": "tests/"
+      "myatKyawThu\\LaravelApiVisibility\\Tests\\": "tests/"
     }
   },
   "authors": [
@@ -37,10 +37,10 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Primebeyonder\\LaravelApiVisibility\\ApiVisibilityServiceProvider"
+        "myatKyawThu\\LaravelApiVisibility\\ApiVisibilityServiceProvider"
       ],
       "aliases": {
-        "ApiVisibility": "Primebeyonder\\LaravelApiVisibility\\Facades\\ApiVisibility"
+        "ApiVisibility": "myatKyawThu\\LaravelApiVisibility\\Facades\\ApiVisibility"
       }
     }
   },

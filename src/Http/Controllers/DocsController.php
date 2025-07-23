@@ -1,9 +1,9 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Http\Controllers;
+namespace myatKyawThu\LaravelApiVisibility\Http\Controllers;
 
 use Illuminate\Routing\Controller;
-use Primebeyonder\LaravelApiVisibility\Facades\ApiVisibility;
+use myatKyawThu\LaravelApiVisibility\Facades\ApiVisibility;
 
 class DocsController extends Controller
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Tests\Feature;
+namespace myatKyawThu\LaravelApiVisibility\Tests\Feature;
 
 use Illuminate\Support\Facades\Route;
 use Mockery;
-use Primebeyonder\LaravelApiVisibility\Facades\ApiVisibility;
-use Primebeyonder\LaravelApiVisibility\Tests\TestCase;
+use myatKyawThu\LaravelApiVisibility\Facades\ApiVisibility;
+use myatKyawThu\LaravelApiVisibility\Tests\TestCase;
 
 class PreviewRouteTest extends TestCase
 {

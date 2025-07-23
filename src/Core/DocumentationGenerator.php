@@ -1,10 +1,10 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Core;
+namespace myatKyawThu\LaravelApiVisibility\Core;
 
-use Primebeyonder\LaravelApiVisibility\Contracts\DocumentationGeneratorInterface;
-use Primebeyonder\LaravelApiVisibility\Contracts\RouteCollectorInterface;
-use Primebeyonder\LaravelApiVisibility\Support\RouteGrouping;
+use myatKyawThu\LaravelApiVisibility\Contracts\DocumentationGeneratorInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface;
+use myatKyawThu\LaravelApiVisibility\Support\RouteGrouping;
 
 class DocumentationGenerator implements DocumentationGeneratorInterface
 {

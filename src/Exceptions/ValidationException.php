@@ -1,6 +1,6 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility\Exceptions;
+namespace myatKyawThu\LaravelApiVisibility\Exceptions;
 
 class ValidationException extends ApiVisibilityException
 {

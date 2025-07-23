@@ -1,9 +1,9 @@
 <?php
 
-namespace Primebeyonder\LaravelApiVisibility;
+namespace myatKyawThu\LaravelApiVisibility;
 
-use Primebeyonder\LaravelApiVisibility\Contracts\DocumentationGeneratorInterface;
-use Primebeyonder\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\DocumentationGeneratorInterface;
+use myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
 
 class FacadeManager
 {
