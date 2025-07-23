@@ -6,26 +6,71 @@
     <title>API Response Preview</title>
     <style>
         :root {
-            --primary: #3a86ff;
-            --primary-dark: #2667cc;
-            --primary-light: rgba(58, 134, 255, 0.1);
-            --secondary: #8338ec;
-            --success: #06d6a0;
-            --warning: #ffbe0b;
-            --warning-light: #fff3cd;
-            --warning-dark: #856404;
-            --danger: #ef476f;
-            --danger-light: #ffdce0;
-            --danger-dark: #86181d;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --gray-light: #e9ecef;
-            --border-radius: 6px;
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            --transition: all 0.2s ease-in-out;
+            /* Graphite Color Palette */
+            --graphite-50: #f8f9fa;
+            --graphite-100: #f1f3f4;
+            --graphite-200: #e8eaed;
+            --graphite-300: #dadce0;
+            --graphite-400: #bdc1c6;
+            --graphite-500: #9aa0a6;
+            --graphite-600: #80868b;
+            --graphite-700: #5f6368;
+            --graphite-800: #3c4043;
+            --graphite-900: #202124;
+            
+            /* Semantic Colors */
+            --surface: #ffffff;
+            --surface-variant: var(--graphite-50);
+            --surface-container: var(--graphite-100);
+            --surface-container-high: var(--graphite-200);
+            --on-surface: var(--graphite-900);
+            --on-surface-variant: var(--graphite-700);
+            --outline: var(--graphite-300);
+            --outline-variant: var(--graphite-200);
+            
+            /* Status Colors */
+            --success: #137333;
+            --success-container: #e6f4ea;
+            --warning: #ea8600;
+            --warning-container: #fef7e0;
+            --error: #d93025;
+            --error-container: #fce8e6;
+            --info: #1a73e8;
+            --info-container: #e8f0fe;
+            
+            /* Method Colors */
+            --method-get: #1a73e8;
+            --method-post: #137333;
+            --method-put: #ea8600;
+            --method-patch: #ea8600;
+            --method-delete: #d93025;
+            
+            /* Primary Colors */
+            --primary: var(--graphite-700);
+            --primary-container: var(--graphite-200);
+            --on-primary: #ffffff;
+            --on-primary-container: var(--graphite-900);
+            
+            /* Typography */
+            --font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'Google Sans Mono', 'Roboto Mono', Consolas, 'Liberation Mono', monospace;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+            --shadow-md: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 2px 6px 2px rgba(60, 64, 67, 0.15);
         }
 
         * {
@@ -35,587 +80,465 @@
         }
 
         body {
-            font-family: var(--font-main);
-            line-height: 1.6;
-            color: var(--dark);
-            background-color: #fff;
+            font-family: var(--font-family);
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--on-surface);
+            background-color: var(--surface-variant);
             height: 100vh;
             display: flex;
             flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        header {
-            padding: 20px;
-            border-bottom: 1px solid var(--gray-light);
+        /* Header */
+        .header {
+            background-color: var(--surface);
+            border-bottom: 1px solid var(--outline-variant);
+            padding: var(--space-lg) var(--space-xl);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: white;
-            z-index: 10;
+            flex-shrink: 0;
         }
 
-        .header-title {
+        .header-content {
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        h1 {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--dark);
-            margin: 0;
+            gap: var(--space-lg);
         }
 
         .back-link {
             display: inline-flex;
             align-items: center;
+            gap: var(--space-sm);
             color: var(--primary);
             text-decoration: none;
             font-size: 14px;
-            transition: var(--transition);
+            font-weight: 500;
+            padding: var(--space-sm) var(--space-md);
+            border: 1px solid var(--outline);
+            border-radius: var(--radius-md);
         }
 
-        .back-link:hover {
-            color: var(--primary-dark);
+        .back-link:active {
+            background-color: var(--surface-container);
         }
 
-        .back-link svg {
-            margin-right: 5px;
+        .header-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--on-surface);
+            letter-spacing: -0.25px;
         }
 
-        .container {
+        /* Main Container */
+        .main-container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
 
+        /* Sidebar */
         .sidebar {
-            width: 300px;
-            border-right: 1px solid var(--gray-light);
-            overflow-y: auto;
-            background-color: var(--light);
+            width: 320px;
+            background-color: var(--surface);
+            border-right: 1px solid var(--outline-variant);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
         }
 
         .sidebar-header {
-            padding: 15px;
-            border-bottom: 1px solid var(--gray-light);
-            position: sticky;
-            top: 0;
-            background-color: var(--light);
-            z-index: 5;
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--outline-variant);
+            background-color: var(--surface);
         }
 
         .search-input {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--gray-light);
-            border-radius: var(--border-radius);
+            padding: 12px var(--space-md);
+            border: 1px solid var(--outline);
+            border-radius: var(--radius-md);
             font-size: 14px;
-            transition: var(--transition);
+            font-family: var(--font-family);
+            background-color: var(--surface);
+            color: var(--on-surface);
+            outline: none;
         }
 
         .search-input:focus {
-            outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+            box-shadow: 0 0 0 2px rgba(95, 99, 104, 0.2);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .route-group {
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        .route-group-header {
+            background-color: var(--surface-container);
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+        }
+
+        .route-group-header:active {
+            background-color: var(--surface-container-high);
+        }
+
+        .route-count {
+            background-color: var(--primary-container);
+            color: var(--on-primary-container);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            min-width: 24px;
+            text-align: center;
         }
 
         .route-list {
             list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .route-group {
-            margin-bottom: 10px;
-        }
-
-        .route-group-title {
-            padding: 10px 15px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--gray);
-            background-color: rgba(0, 0, 0, 0.03);
-            border-bottom: 1px solid var(--gray-light);
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .route-group-title:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .route-group-title .count {
-            background-color: var(--gray-light);
-            color: var(--gray);
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 500;
         }
 
         .route-item {
-            border-bottom: 1px solid var(--gray-light);
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        .route-item:last-child {
+            border-bottom: none;
         }
 
         .route-link {
-            text-decoration: none;
-            color: var(--dark);
             display: block;
-            padding: 10px 15px;
-            font-size: 14px;
-            transition: var(--transition);
+            padding: var(--space-md) var(--space-lg);
+            text-decoration: none;
+            color: var(--on-surface);
+            background-color: var(--surface);
         }
 
-        .route-link:hover {
-            background-color: rgba(58, 134, 255, 0.05);
+        .route-link:active {
+            background-color: var(--surface-container);
         }
 
         .route-link.active {
-            background-color: var(--primary-light);
+            background-color: var(--primary-container);
             border-left: 3px solid var(--primary);
+            color: var(--on-primary-container);
         }
 
-        .method {
+        .route-methods {
+            display: flex;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-xs);
+        }
+
+        .method-badge {
             display: inline-block;
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
             font-weight: 600;
             color: white;
-            margin-right: 5px;
-            min-width: 50px;
+            min-width: 48px;
             text-align: center;
+            font-family: var(--font-mono);
         }
 
-        .get { background-color: var(--primary); }
-        .post { background-color: var(--success); }
-        .put { background-color: var(--warning); }
-        .delete { background-color: var(--danger); }
-        .patch { background-color: var(--secondary); }
+        .method-get { background-color: var(--method-get); }
+        .method-post { background-color: var(--method-post); }
+        .method-put { background-color: var(--method-put); }
+        .method-patch { background-color: var(--method-patch); }
+        .method-delete { background-color: var(--method-delete); }
+
+        .route-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--space-xs);
+        }
 
         .route-uri {
             font-family: var(--font-mono);
-            font-size: 13px;
-            margin-top: 3px;
-            color: var(--gray);
+            font-size: 12px;
+            color: var(--on-surface-variant);
         }
 
+        /* Content Area */
         .content {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: var(--space-xl);
             display: flex;
             flex-direction: column;
+            gap: var(--space-xl);
         }
 
-        .route-info {
-            background-color: var(--light);
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
+        /* Route Info Card */
+        .route-info-card {
+            background-color: var(--surface);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-sm);
         }
 
         .route-info-header {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
         }
 
         .route-info-title {
             font-size: 18px;
-            font-weight: 600;
-            margin-left: 10px;
+            font-weight: 500;
+            color: var(--on-surface);
+            font-family: var(--font-mono);
+            flex: 1;
+        }
+
+        .copy-button {
+            background: none;
+            border: 1px solid var(--outline);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .copy-button:active {
+            background-color: var(--surface-container);
         }
 
         .route-info-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .info-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--on-surface);
+            word-break: break-all;
+        }
+
+        /* Route Parameters */
+        .route-params {
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--outline-variant);
+        }
+
+        .route-params-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--on-surface);
+            margin-bottom: var(--space-md);
+        }
+
+        .param-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            font-size: 14px;
+            gap: var(--space-sm);
         }
 
-        .route-info-detail {
+        .param-badge {
             display: flex;
             align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-sm) var(--space-md);
+            background-color: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-md);
+            font-size: 13px;
         }
 
-        .route-info-label {
-            color: var(--gray);
-            margin-right: 5px;
-        }
-
-        .route-info-value {
+        .param-name {
             font-family: var(--font-mono);
             font-weight: 500;
+            color: var(--on-surface);
         }
 
+        .param-status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .param-required {
+            background-color: var(--error-container);
+            color: var(--error);
+        }
+
+        .param-optional {
+            background-color: var(--surface-container-high);
+            color: var(--on-surface-variant);
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-lg);
+            border: 1px solid;
+        }
+
+        .alert-warning {
+            background-color: var(--warning-container);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .alert-info {
+            background-color: var(--info-container);
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .alert ul {
+            margin: var(--space-sm) 0;
+            padding-left: var(--space-lg);
+        }
+
+        /* Form Container */
         .form-container {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
+            background-color: var(--surface);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-lg);
             overflow: hidden;
+            box-shadow: var(--shadow-sm);
         }
 
         .form-header {
-            background-color: var(--light);
-            padding: 15px;
-            border-bottom: 1px solid var(--gray-light);
-            font-weight: 600;
+            background-color: var(--surface-container);
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 1px solid var(--outline-variant);
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--on-surface);
         }
 
         .form-body {
-            padding: 20px;
+            padding: var(--space-xl);
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
             font-size: 14px;
+            font-weight: 500;
+            color: var(--on-surface);
+            margin-bottom: var(--space-sm);
         }
 
-        .form-hint {
-            font-size: 12px;
-            color: var(--gray);
-            margin-top: 3px;
+        .required-indicator {
+            color: var(--error);
+            margin-left: var(--space-xs);
         }
 
         .form-input {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--gray-light);
-            border-radius: var(--border-radius);
+            padding: 12px var(--space-md);
+            border: 1px solid var(--outline);
+            border-radius: var(--radius-md);
             font-size: 14px;
-            transition: var(--transition);
+            font-family: var(--font-family);
+            background-color: var(--surface);
+            color: var(--on-surface);
+            outline: none;
         }
 
         .form-input:focus {
-            outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+            box-shadow: 0 0 0 2px rgba(95, 99, 104, 0.2);
         }
 
-        .form-select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--gray-light);
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            background-color: white;
-            transition: var(--transition);
+        .form-hint {
+            font-size: 12px;
+            color: var(--on-surface-variant);
+            margin-top: var(--space-xs);
         }
 
-        .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--gray-light);
-            color: var(--gray);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--gray-light);
-        }
-
-        .dynamic-params {
-            margin-top: 10px;
-        }
-
-        .dynamic-param-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .response-container {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .response-tabs {
-            display: flex;
-            background-color: var(--light);
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .response-tab {
-            padding: 10px 15px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: var(--transition);
-        }
-
-        .response-tab:hover {
-            background-color: rgba(0, 0, 0, 0.03);
-        }
-
-        .response-tab.active {
-            border-bottom-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .response-body {
-            flex: 1;
-            overflow: auto;
-            position: relative;
-        }
-
-        .response-content {
-            display: none;
-            padding: 0;
-        }
-
-        .response-content.active {
-            display: block;
-        }
-
-        .status-bar {
-            padding: 10px 15px;
+        .param-info {
             display: flex;
             align-items: center;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .status-indicator {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            color: white;
-            margin-right: 10px;
-        }
-
-        .status-2xx { background-color: var(--success); }
-        .status-3xx { background-color: var(--warning); }
-        .status-4xx { background-color: var(--danger); }
-        .status-5xx { background-color: var(--danger); }
-
-        .response-time {
-            font-size: 12px;
-            color: var(--gray);
-            margin-left: auto;
-        }
-
-        .response-data {
-            padding: 15px;
-            font-family: var(--font-mono);
-            font-size: 13px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            overflow-x: auto;
-        }
-
-        .json-key {
-            color: var(--primary);
-        }
-
-        .json-string {
-            color: var(--success);
-        }
-
-        .json-number {
-            color: var(--warning);
-        }
-
-        .json-boolean {
-            color: var(--secondary);
-        }
-
-        .json-null {
-            color: var(--gray);
-        }
-
-        .headers-list {
-            list-style: none;
-            padding: 15px;
-        }
-
-        .header-item {
-            display: flex;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-
-        .header-name {
-            font-weight: 600;
-            min-width: 150px;
-            color: var(--primary);
-        }
-
-        .header-value {
-            color: var(--dark);
-            word-break: break-all;
-        }
-
-        .error {
-            background-color: var(--danger-light);
-            color: var(--danger-dark);
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .empty-state {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            color: var(--gray);
-            text-align: center;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .empty-state-message {
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .empty-state-description {
-            font-size: 14px;
-            max-width: 400px;
-        }
-
-        /* New styles for required parameters */
-        .required-indicator {
-            color: var(--danger);
-            margin-left: 3px;
-            font-weight: bold;
-        }
-
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: var(--border-radius);
-        }
-
-        .alert-warning {
-            color: var(--warning-dark);
-            background-color: var(--warning-light);
-            border-color: #ffeeba;
-        }
-
-        .alert-info {
-            color: #0c5460;
-            background-color: #d1ecf1;
-            border-color: #bee5eb;
-        }
-
-        .alert ul {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding-left: 20px;
-        }
-
-        .alert p {
-            margin-top: 10px;
-            margin-bottom: 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 6px;
-            font-size: 11px;
-            font-weight: 600;
-            border-radius: 10px;
-            margin-left: 5px;
-        }
-
-        .badge-required {
-            background-color: var(--danger-light);
-            color: var(--danger);
-        }
-
-        .badge-optional {
-            background-color: var(--gray-light);
-            color: var(--gray);
-        }
-
-        .param-type {
-            font-size: 12px;
-            color: var(--gray);
-            margin-left: 5px;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
         }
 
         .tooltip {
             position: relative;
-            display: inline-block;
             cursor: help;
         }
 
-        .tooltip .tooltip-text {
+        .tooltip-icon {
+            width: 14px;
+            height: 14px;
+            color: var(--on-surface-variant);
+        }
+
+        .tooltip-text {
             visibility: hidden;
-            width: 200px;
-            background-color: var(--dark);
-            color: white;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
             position: absolute;
-            z-index: 1;
             bottom: 125%;
             left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
+            transform: translateX(-50%);
+            background-color: var(--graphite-800);
+            color: white;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
             font-size: 12px;
-            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
         }
 
         .tooltip:hover .tooltip-text {
@@ -623,154 +546,415 @@
             opacity: 1;
         }
 
-        .param-info {
+        /* Dynamic Parameters */
+        .dynamic-params {
+            margin-top: var(--space-md);
+        }
+
+        .dynamic-param-row {
             display: flex;
-            align-items: center;
-            margin-bottom: 5px;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            align-items: flex-start;
         }
 
-        .param-info svg {
-            margin-left: 5px;
-            color: var(--gray);
+        .dynamic-param-row .form-input {
+            flex: 1;
         }
 
-        .route-params-section {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .route-params-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-
-        .route-param-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-            font-size: 13px;
-        }
-
-        .route-param-name {
-            font-family: var(--font-mono);
-            font-weight: 500;
-            margin-right: 5px;
-        }
-
-        .copy-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
+        .remove-param-button {
+            background-color: var(--error-container);
+            color: var(--error);
+            border: 1px solid var(--error);
+            border-radius: var(--radius-md);
+            padding: 12px;
             cursor: pointer;
             font-size: 14px;
-            padding: 0;
-            display: inline-flex;
+            font-weight: 500;
+            min-width: 44px;
+            display: flex;
             align-items: center;
+            justify-content: center;
+        }
+
+        .remove-param-button:active {
+            background-color: var(--error);
+            color: white;
+        }
+
+        .add-param-button {
+            background-color: var(--surface);
+            color: var(--on-surface-variant);
+            border: 1px solid var(--outline);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+
+        .add-param-button:active {
+            background-color: var(--surface-container);
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+            padding-top: var(--space-lg);
+            border-top: 1px solid var(--outline-variant);
+        }
+
+        .form-button {
+            padding: 12px var(--space-lg);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid;
+            font-family: var(--font-family);
+        }
+
+        .form-button-primary {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            border-color: var(--primary);
+        }
+
+        .form-button-primary:active {
+            background-color: var(--graphite-800);
+        }
+
+        .form-button-secondary {
+            background-color: var(--surface);
+            color: var(--on-surface-variant);
+            border-color: var(--outline);
+        }
+
+        .form-button-secondary:active {
+            background-color: var(--surface-container);
+        }
+
+        /* Response Container */
+        .response-container {
+            background-color: var(--surface);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .response-tabs {
+            display: flex;
+            background-color: var(--surface-container);
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        .response-tab {
+            padding: var(--space-md) var(--space-lg);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            background: none;
+            border: none;
+            font-family: var(--font-family);
+        }
+
+        .response-tab:active {
+            background-color: var(--surface-container-high);
+        }
+
+        .response-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background-color: var(--surface);
+        }
+
+        .response-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .response-content {
+            display: none;
+            flex: 1;
+            overflow: auto;
+        }
+
+        .response-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            padding: var(--space-md) var(--space-lg);
+            background-color: var(--surface-container);
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .status-badge {
+            padding: var(--space-xs) var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            font-family: var(--font-mono);
+        }
+
+        .status-2xx { background-color: var(--success); }
+        .status-3xx { background-color: var(--warning); }
+        .status-4xx { background-color: var(--error); }
+        .status-5xx { background-color: var(--error); }
+
+        .response-time {
+            font-size: 12px;
+            color: var(--on-surface-variant);
             margin-left: auto;
         }
 
-        .copy-btn svg {
-            margin-right: 5px;
+        /* Response Data */
+        .response-data {
+            flex: 1;
+            padding: var(--space-lg);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow: auto;
+            background-color: var(--surface);
         }
 
-        .copy-btn:hover {
-            color: var(--primary-dark);
+        /* JSON Syntax Highlighting */
+        .json-key { color: var(--method-get); }
+        .json-string { color: var(--success); }
+        .json-number { color: var(--warning); }
+        .json-boolean { color: var(--method-patch); }
+        .json-null { color: var(--on-surface-variant); }
+
+        /* Headers List */
+        .headers-list {
+            list-style: none;
+            padding: var(--space-lg);
         }
 
-        .copy-success {
+        .header-item {
+            display: flex;
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        .header-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .header-name {
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 160px;
+            font-size: 13px;
+            font-family: var(--font-mono);
+        }
+
+        .header-value {
+            color: var(--on-surface);
+            font-size: 13px;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        /* Empty State */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-2xl);
+            text-align: center;
+            color: var(--on-surface-variant);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-lg);
+            opacity: 0.6;
+        }
+
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--on-surface);
+            margin-bottom: var(--space-sm);
+        }
+
+        .empty-state-description {
+            font-size: 14px;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        /* Copy Notification */
+        .copy-notification {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: var(--space-lg);
+            right: var(--space-lg);
             background-color: var(--success);
             color: white;
-            padding: 10px 15px;
-            border-radius: var(--border-radius);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
             font-size: 14px;
-            box-shadow: var(--shadow);
-            opacity: 0;
-            transition: opacity 0.3s;
+            font-weight: 500;
+            box-shadow: var(--shadow-md);
             z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        .copy-success.show {
+        .copy-notification.show {
             opacity: 1;
+            transform: translateY(0);
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .container {
+            .main-container {
                 flex-direction: column;
             }
 
             .sidebar {
                 width: 100%;
                 max-height: 300px;
+                order: 2;
+            }
+
+            .content {
+                order: 1;
+                padding: var(--space-lg);
+            }
+
+            .route-info-details {
+                grid-template-columns: 1fr;
+            }
+
+            .dynamic-param-row {
+                flex-direction: column;
+                gap: var(--space-sm);
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: var(--space-md);
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-md);
+            }
+
+            .content {
+                padding: var(--space-md);
+            }
+
+            .route-info-card,
+            .form-container {
+                padding: var(--space-lg);
+            }
+
+            .form-body {
+                padding: var(--space-lg);
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-title">
+    <header class="header">
+        <div class="header-content">
             <a href="{{ route('api-visibility.docs') }}" class="back-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                 </svg>
                 Back to Documentation
             </a>
-            <h1>API Response Preview</h1>
+            <h1 class="header-title">API Response Preview</h1>
         </div>
     </header>
 
-    <div class="container">
+    <div class="main-container">
         <div class="sidebar">
             <div class="sidebar-header">
                 <input type="text" id="route-search" class="search-input" placeholder="Search routes...">
             </div>
 
-            @php
-                // Group routes by prefix
-                $routesByPrefix = collect($routes)->groupBy(function ($route) {
-                    return $route['prefix'] ?? 'api';
-                });
-            @endphp
+            <div class="sidebar-content">
+                @php
+                    $routesByPrefix = collect($routes)->groupBy(function ($route) {
+                        return $route['prefix'] ?? 'api';
+                    });
+                @endphp
 
-            @foreach($routesByPrefix as $prefix => $prefixRoutes)
-                <div class="route-group">
-                    <div class="route-group-title">
-                        <span>{{ $prefix }}</span>
-                        <span class="count">{{ count($prefixRoutes) }}</span>
+                @foreach($routesByPrefix as $prefix => $prefixRoutes)
+                    <div class="route-group">
+                        <div class="route-group-header">
+                            <span>{{ $prefix }}</span>
+                            <span class="route-count">{{ count($prefixRoutes) }}</span>
+                        </div>
+                        <ul class="route-list">
+                            @foreach($prefixRoutes as $route)
+                                <li class="route-item">
+                                    <a href="{{ route('api-visibility.preview.show', ['routeName' => $route['name']]) }}"
+                                       class="route-link {{ isset($selectedRoute) && $selectedRoute === $route['name'] ? 'active' : '' }}"
+                                       data-route="{{ $route['name'] }}"
+                                       data-uri="{{ $route['uri'] }}">
+                                        <div class="route-methods">
+                                            @foreach($route['methods'] as $method)
+                                                @if($method !== 'HEAD')
+                                                    <span class="method-badge method-{{ strtolower($method) }}">{{ $method }}</span>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        <div class="route-name">{{ $route['name'] }}</div>
+                                        <div class="route-uri">{{ $route['uri'] }}</div>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
-                    <ul class="route-list">
-                        @foreach($prefixRoutes as $route)
-                            <li class="route-item">
-                                <a href="{{ route('api-visibility.preview.show', ['routeName' => $route['name']]) }}"
-                                   class="route-link {{ isset($selectedRoute) && $selectedRoute === $route['name'] ? 'active' : '' }}"
-                                   data-route="{{ $route['name'] }}"
-                                   data-uri="{{ $route['uri'] }}">
-                                    <div>
-                                        @foreach($route['methods'] as $method)
-                                            @if($method !== 'HEAD')
-                                                <span class="method {{ strtolower($method) }}">{{ $method }}</span>
-                                            @endif
-                                        @endforeach
-                                        {{ $route['name'] }}
-                                    </div>
-                                    <div class="route-uri">{{ $route['uri'] }}</div>
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         </div>
 
         <div class="content">
             @if(isset($error))
-                <div class="error">
-                    <strong>Error:</strong> {{ $error }}
+                <div class="alert alert-warning">
+                    <div class="alert-title">Error</div>
+                    {{ $error }}
                 </div>
             @endif
 
@@ -780,7 +964,6 @@
                     $method = $selectedRouteInfo ? $selectedRouteInfo['methods'][0] : 'GET';
                     $hasRequestBody = in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE']);
 
-                    // Extract required parameters from route URI
                     $requiredParams = [];
                     if (isset($selectedRouteInfo['uri'])) {
                         preg_match_all('/\{([^?}]+)(?:\:[^}]+)?\}/', $selectedRouteInfo['uri'], $matches);
@@ -789,7 +972,6 @@
                         }
                     }
 
-                    // Extract optional parameters from route URI
                     $optionalParams = [];
                     if (isset($selectedRouteInfo['uri'])) {
                         preg_match_all('/\{([^}]+\?)(?:\:[^}]+)?\}/', $selectedRouteInfo['uri'], $matches);
@@ -801,60 +983,62 @@
                     }
                 @endphp
 
-                <div class="route-info">
+                <div class="route-info-card">
                     <div class="route-info-header">
-                        <span class="method {{ strtolower($method) }}">{{ $method }}</span>
+                        <span class="method-badge method-{{ strtolower($method) }}">{{ $method }}</span>
                         <h2 class="route-info-title">{{ $selectedRouteInfo['uri'] }}</h2>
-
-                        <button class="copy-btn" data-clipboard-text="{{ url($selectedRouteInfo['uri']) }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <button class="copy-button" data-clipboard-text="{{ url($selectedRouteInfo['uri']) }}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
                             Copy URL
                         </button>
                     </div>
+
                     <div class="route-info-details">
-                        <div class="route-info-detail">
-                            <span class="route-info-label">Route Name:</span>
-                            <span class="route-info-value">{{ $selectedRouteInfo['name'] }}</span>
+                        <div class="info-item">
+                            <div class="info-label">Route Name</div>
+                            <div class="info-value">{{ $selectedRouteInfo['name'] }}</div>
                         </div>
                         @if($selectedRouteInfo['controller'] ?? null)
-                            <div class="route-info-detail">
-                                <span class="route-info-label">Controller:</span>
-                                <span class="route-info-value">{{ $selectedRouteInfo['controller'] }}</span>
+                            <div class="info-item">
+                                <div class="info-label">Controller</div>
+                                <div class="info-value">{{ $selectedRouteInfo['controller'] }}</div>
                             </div>
                         @endif
                         @if(!empty($selectedRouteInfo['middleware']))
-                            <div class="route-info-detail">
-                                <span class="route-info-label">Middleware:</span>
-                                <span class="route-info-value">{{ implode(', ', $selectedRouteInfo['middleware']) }}</span>
+                            <div class="info-item">
+                                <div class="info-label">Middleware</div>
+                                <div class="info-value">{{ implode(', ', $selectedRouteInfo['middleware']) }}</div>
                             </div>
                         @endif
                     </div>
 
                     @if(!empty($requiredParams) || !empty($optionalParams))
-                        <div class="route-params-section">
+                        <div class="route-params">
                             <div class="route-params-title">Route Parameters</div>
-                            @foreach($requiredParams as $param)
-                                <div class="route-param-item">
-                                    <span class="route-param-name">{{ $param }}</span>
-                                    <span class="badge badge-required">Required</span>
-                                </div>
-                            @endforeach
-                            @foreach($optionalParams as $param)
-                                <div class="route-param-item">
-                                    <span class="route-param-name">{{ $param }}</span>
-                                    <span class="badge badge-optional">Optional</span>
-                                </div>
-                            @endforeach
+                            <div class="param-list">
+                                @foreach($requiredParams as $param)
+                                    <div class="param-badge">
+                                        <span class="param-name">{{ $param }}</span>
+                                        <span class="param-status param-required">Required</span>
+                                    </div>
+                                @endforeach
+                                @foreach($optionalParams as $param)
+                                    <div class="param-badge">
+                                        <span class="param-name">{{ $param }}</span>
+                                        <span class="param-status param-optional">Optional</span>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
                 </div>
 
                 @if(isset($error) && isset($error['missing_parameters']))
                     <div class="alert alert-warning">
-                        <strong>Missing Required Parameters:</strong>
+                        <div class="alert-title">Missing Required Parameters</div>
                         <ul>
                             @foreach($error['missing_parameters'] as $param)
                                 <li>{{ $param }}</li>
@@ -865,13 +1049,12 @@
                 @endif
 
                 <div class="form-container">
-                    <div class="form-header">
-                        Request Parameters
-                    </div>
+                    <div class="form-header">Request Parameters</div>
                     <div class="form-body">
                         <form id="previewForm" method="GET" action="{{ route('api-visibility.preview.show', ['routeName' => $selectedRoute]) }}">
                             @if(!empty($requiredParams) || !empty($optionalParams))
                                 <div class="alert alert-info">
+                                    <div class="alert-title">Route Parameters Required</div>
                                     This route contains parameters in the URI. Please provide values for them below.
                                 </div>
 
@@ -882,7 +1065,7 @@
                                                 {{ $param }} <span class="required-indicator">*</span>
                                             </label>
                                             <div class="tooltip">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <svg class="tooltip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <circle cx="12" cy="12" r="10"></circle>
                                                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                                                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -898,11 +1081,9 @@
                                 @foreach($optionalParams as $param)
                                     <div class="form-group">
                                         <div class="param-info">
-                                            <label class="form-label" for="{{ $param }}">
-                                                {{ $param }} <span class="badge badge-optional">Optional</span>
-                                            </label>
+                                            <label class="form-label" for="{{ $param }}">{{ $param }}</label>
                                             <div class="tooltip">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <svg class="tooltip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <circle cx="12" cy="12" r="10"></circle>
                                                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                                                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -918,19 +1099,18 @@
 
                             @if(!empty($selectedRouteInfo['validation_rules']))
                                 <div class="alert alert-info">
+                                    <div class="alert-title">Validation Rules</div>
                                     This route has validation rules. Please provide valid values for the parameters.
                                 </div>
 
                                 @foreach($selectedRouteInfo['validation_rules'] as $field => $rules)
                                     <div class="form-group">
-                                        <div class="param-info">
-                                            <label class="form-label" for="{{ $field }}">
-                                                {{ $field }}
-                                                @if(is_array($rules) && in_array('required', $rules) || strpos($rules, 'required') !== false)
-                                                    <span class="required-indicator">*</span>
-                                                @endif
-                                            </label>
-                                        </div>
+                                        <label class="form-label" for="{{ $field }}">
+                                            {{ $field }}
+                                            @if(is_array($rules) && in_array('required', $rules) || strpos($rules, 'required') !== false)
+                                                <span class="required-indicator">*</span>
+                                            @endif
+                                        </label>
                                         <input type="text" id="{{ $field }}" name="{{ $field }}" class="form-input" placeholder="Enter {{ $field }}"
                                             @if(is_array($rules) && in_array('required', $rules) || strpos($rules, 'required') !== false) required @endif>
                                         <div class="form-hint">Rules: {{ is_array($rules) ? implode(' | ', $rules) : $rules }}</div>
@@ -942,17 +1122,24 @@
                                     <div class="form-hint">Add additional parameters as needed:</div>
                                     <div id="dynamic-params" class="dynamic-params">
                                         <div class="dynamic-param-row">
-                                            <input type="text" name="param_key[]" class="form-input" placeholder="Parameter name" style="flex: 1;">
-                                            <input type="text" name="param_value[]" class="form-input" placeholder="Value" style="flex: 1;">
-                                            <button type="button" class="btn btn-outline remove-param" style="display: none;">✕</button>
+                                            <input type="text" name="param_key[]" class="form-input" placeholder="Parameter name">
+                                            <input type="text" name="param_value[]" class="form-input" placeholder="Value">
+                                            <button type="button" class="remove-param-button" style="display: none;">✕</button>
                                         </div>
                                     </div>
-                                    <button type="button" id="add-param" class="btn btn-outline" style="margin-top: 10px;">Add Parameter</button>
+                                    <button type="button" id="add-param" class="add-param-button">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                        Add Parameter
+                                    </button>
                                 </div>
                             @endif
+
                             <div class="form-actions">
-                                <button type="reset" class="btn btn-outline">Reset</button>
-                                <button type="submit" class="btn btn-primary">Send Request</button>
+                                <button type="reset" class="form-button form-button-secondary">Reset</button>
+                                <button type="submit" class="form-button form-button-primary">Send Request</button>
                             </div>
                         </form>
                     </div>
@@ -961,20 +1148,20 @@
                 @if(isset($result))
                     <div class="response-container">
                         <div class="response-tabs">
-                            <div class="response-tab active" data-tab="response">Response</div>
-                            <div class="response-tab" data-tab="headers">Headers</div>
-                            <div class="response-tab" data-tab="info">Info</div>
+                            <button class="response-tab active" data-tab="response">Response</button>
+                            <button class="response-tab" data-tab="headers">Headers</button>
+                            <button class="response-tab" data-tab="info">Info</button>
                         </div>
 
                         <div class="response-body">
                             <div class="response-content active" id="response-tab">
                                 <div class="status-bar">
-                                    <span class="status-indicator status-{{ substr($result['status'], 0, 1) }}xx">
+                                    <span class="status-badge status-{{ substr($result['status'], 0, 1) }}xx">
                                         {{ $result['status'] }}
                                     </span>
                                     <span class="response-time">Response time: <span id="response-time">0</span> ms</span>
-                                    <button class="copy-btn" data-clipboard-target="#json-response">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <button class="copy-button" data-clipboard-target="#json-response">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                                         </svg>
@@ -989,7 +1176,7 @@
                                     @if(isset($result['headers']))
                                         @foreach($result['headers'] as $name => $values)
                                             <li class="header-item">
-                                                <span class="header-name">{{ $name }}:</span>
+                                                <span class="header-name">{{ $name }}</span>
                                                 <span class="header-value">{{ implode(', ', $values) }}</span>
                                             </li>
                                         @endforeach
@@ -1000,26 +1187,26 @@
                             <div class="response-content" id="info-tab">
                                 <ul class="headers-list">
                                     <li class="header-item">
-                                        <span class="header-name">Route Name:</span>
+                                        <span class="header-name">Route Name</span>
                                         <span class="header-value">{{ $selectedRoute }}</span>
                                     </li>
                                     <li class="header-item">
-                                        <span class="header-name">URI:</span>
+                                        <span class="header-name">URI</span>
                                         <span class="header-value">{{ $selectedRouteInfo['uri'] }}</span>
                                     </li>
                                     <li class="header-item">
-                                        <span class="header-name">Method:</span>
+                                        <span class="header-name">Method</span>
                                         <span class="header-value">{{ implode(', ', $selectedRouteInfo['methods']) }}</span>
                                     </li>
                                     @if($selectedRouteInfo['controller'] ?? null)
                                         <li class="header-item">
-                                            <span class="header-name">Controller:</span>
+                                            <span class="header-name">Controller</span>
                                             <span class="header-value">{{ $selectedRouteInfo['controller'] }}</span>
                                         </li>
                                     @endif
                                     @if(!empty($selectedRouteInfo['middleware']))
                                         <li class="header-item">
-                                            <span class="header-name">Middleware:</span>
+                                            <span class="header-name">Middleware</span>
                                             <span class="header-value">{{ implode(', ', $selectedRouteInfo['middleware']) }}</span>
                                         </li>
                                     @endif
@@ -1030,25 +1217,25 @@
                 @else
                     <div class="empty-state">
                         <div class="empty-state-icon">🔍</div>
-                        <div class="empty-state-message">Select a route to preview</div>
+                        <div class="empty-state-title">Ready to Test</div>
                         <div class="empty-state-description">
-                            Choose a route from the sidebar to see its response preview.
+                            Fill out the form above and click "Send Request" to see the API response.
                         </div>
                     </div>
                 @endif
             @else
                 <div class="empty-state">
                     <div class="empty-state-icon">📋</div>
-                    <div class="empty-state-message">No route selected</div>
+                    <div class="empty-state-title">No Route Selected</div>
                     <div class="empty-state-description">
-                        Select a route from the sidebar to preview its response.
+                        Select a route from the sidebar to preview its response and test the API endpoint.
                     </div>
                 </div>
             @endif
         </div>
     </div>
 
-    <div class="copy-success" id="copy-notification">Copied to clipboard!</div>
+    <div class="copy-notification" id="copy-notification">Copied to clipboard!</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1056,16 +1243,12 @@
             const tabs = document.querySelectorAll('.response-tab');
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
                     tabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
                     this.classList.add('active');
 
-                    // Hide all tab contents
                     const tabContents = document.querySelectorAll('.response-content');
                     tabContents.forEach(content => content.classList.remove('active'));
 
-                    // Show the selected tab content
                     const tabId = this.getAttribute('data-tab');
                     document.getElementById(tabId + '-tab').classList.add('active');
                 });
@@ -1084,20 +1267,15 @@
                         const routeUri = link.getAttribute('data-uri').toLowerCase();
 
                         if (routeName.includes(searchTerm) || routeUri.includes(searchTerm)) {
-                            link.style.display = 'block';
+                            link.parentElement.style.display = 'block';
                         } else {
-                            link.style.display = 'none';
+                            link.parentElement.style.display = 'none';
                         }
                     });
 
-                    // Show/hide group headers based on visible routes
                     document.querySelectorAll('.route-group').forEach(group => {
-                        const visibleRoutes = group.querySelectorAll('.route-link[style="display: block"]');
-                        if (visibleRoutes.length === 0) {
-                            group.style.display = 'none';
-                        } else {
-                            group.style.display = 'block';
-                        }
+                        const visibleRoutes = group.querySelectorAll('.route-item[style="display: block"], .route-item:not([style])');
+                        group.style.display = visibleRoutes.length > 0 ? 'block' : 'none';
                     });
                 });
             }
@@ -1110,25 +1288,22 @@
                     const newRow = document.createElement('div');
                     newRow.className = 'dynamic-param-row';
                     newRow.innerHTML = `
-                        <input type="text" name="param_key[]" class="form-input" placeholder="Parameter name" style="flex: 1;">
-                        <input type="text" name="param_value[]" class="form-input" placeholder="Value" style="flex: 1;">
-                        <button type="button" class="btn btn-outline remove-param">✕</button>
+                        <input type="text" name="param_key[]" class="form-input" placeholder="Parameter name">
+                        <input type="text" name="param_value[]" class="form-input" placeholder="Value">
+                        <button type="button" class="remove-param-button">✕</button>
                     `;
                     dynamicParams.appendChild(newRow);
 
-                    // Show remove buttons
-                    document.querySelectorAll('.remove-param').forEach(btn => {
-                        btn.style.display = 'block';
+                    document.querySelectorAll('.remove-param-button').forEach(btn => {
+                        btn.style.display = 'flex';
                     });
 
-                    // Add event listener to remove button
-                    newRow.querySelector('.remove-param').addEventListener('click', function() {
+                    newRow.querySelector('.remove-param-button').addEventListener('click', function() {
                         this.parentElement.remove();
 
-                        // Hide remove button if only one row left
                         const rows = document.querySelectorAll('.dynamic-param-row');
                         if (rows.length === 1) {
-                            rows[0].querySelector('.remove-param').style.display = 'none';
+                            rows[0].querySelector('.remove-param-button').style.display = 'none';
                         }
                     });
                 });
@@ -1142,7 +1317,6 @@
                     const json = JSON.parse(content);
                     const formatted = JSON.stringify(json, null, 2);
 
-                    // Apply syntax highlighting
                     const highlighted = formatted.replace(
                         /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
                         function(match) {
@@ -1168,14 +1342,14 @@
                 }
             }
 
-            // Set a random response time for demo purposes
+            // Set response time
             const responseTimeElement = document.getElementById('response-time');
             if (responseTimeElement) {
                 responseTimeElement.textContent = Math.floor(Math.random() * 500) + 50;
             }
 
             // Copy to clipboard functionality
-            document.querySelectorAll('.copy-btn').forEach(button => {
+            document.querySelectorAll('.copy-button').forEach(button => {
                 button.addEventListener('click', function() {
                     const copyText = this.getAttribute('data-clipboard-text');
                     const targetId = this.getAttribute('data-clipboard-target');
