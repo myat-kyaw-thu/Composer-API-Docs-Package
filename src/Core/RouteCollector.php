@@ -168,6 +168,20 @@ class RouteCollector implements RouteCollectorInterface
             return false;
         }
 
+        // Check for third-party routes filtering
+        if (!$forPreview && $this->isThirdPartyRoute($route)) {
+            // Check if this third-party route is explicitly allowed
+            if ($this->isAllowedThirdPartyRoute($route)) {
+                return true;
+            }
+            
+            // Check the global third-party inclusion setting
+            $includeThirdParty = config('api-visibility.include_third_party_routes', false);
+            if (!$includeThirdParty) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -263,6 +277,128 @@ class RouteCollector implements RouteCollectorInterface
     }
 
     /**
+     * Check if a route belongs to a third-party package.
+     *
+     * @param \Illuminate\Routing\Route $route
+     * @return bool
+     */
+    protected function isThirdPartyRoute($route): bool
+    {
+        $controllerNamespace = $this->getControllerNamespace($route);
+        
+        if (!$controllerNamespace) {
+            return false;
+        }
+
+        // Get third-party namespaces from config
+        $thirdPartyNamespaces = config('api-visibility.third_party_namespaces', []);
+        
+        // Check if controller namespace starts with any third-party namespace
+        foreach ($thirdPartyNamespaces as $namespace) {
+            if (strpos($controllerNamespace, $namespace) === 0) {
+                return true;
+            }
+        }
+
+        // Check if it's not in the main application namespace (App\)
+        if (strpos($controllerNamespace, 'App\\') !== 0 && 
+            strpos($controllerNamespace, 'myatKyawThu\\LaravelApiVisibility\\') !== 0) {
+            // Additional check for vendor packages by looking for common vendor patterns
+            $vendorPatterns = [
+                '\\Vendor\\',
+                '\\Package\\',
+                '\\Plugin\\',
+            ];
+            
+            foreach ($vendorPatterns as $pattern) {
+                if (strpos($controllerNamespace, $pattern) !== false) {
+                    return true;
+                }
+            }
+            
+            // If namespace doesn't start with App\ and contains backslashes, likely third-party
+            if (substr_count($controllerNamespace, '\\') >= 2) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a third-party route is explicitly allowed.
+     *
+     * @param \Illuminate\Routing\Route $route
+     * @return bool
+     */
+    protected function isAllowedThirdPartyRoute($route): bool
+    {
+        $controllerNamespace = $this->getControllerNamespace($route);
+        
+        if (!$controllerNamespace) {
+            return false;
+        }
+
+        // Get allowed third-party namespaces from config
+        $allowedNamespaces = config('api-visibility.allowed_third_party_namespaces', []);
+        
+        // Check if controller namespace starts with any allowed namespace
+        foreach ($allowedNamespaces as $namespace) {
+            if (strpos($controllerNamespace, $namespace) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Extract the controller namespace from a route.
+     *
+     * @param \Illuminate\Routing\Route $route
+     * @return string|null
+     */
+    protected function getControllerNamespace($route): ?string
+    {
+        $action = $route->getAction();
+        
+        if (!isset($action['controller'])) {
+            return null;
+        }
+
+        $controller = $action['controller'];
+        
+        // Handle controller@method format
+        if (strpos($controller, '@') !== false) {
+            $controller = explode('@', $controller)[0];
+        }
+
+        // Handle callable array format [Controller::class, 'method']
+        if (is_array($controller)) {
+            $controller = $controller[0];
+        }
+
+        // Handle closure routes
+        if ($controller instanceof \Closure) {
+            return null;
+        }
+
+        try {
+            // Use reflection to get the actual namespace
+            $reflectionClass = new ReflectionClass($controller);
+            return $reflectionClass->getNamespaceName();
+        } catch (\ReflectionException $e) {
+            // If reflection fails, try to extract namespace from string
+            $lastBackslash = strrpos($controller, '\\');
+            if ($lastBackslash !== false) {
+                return substr($controller, 0, $lastBackslash);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Extract information from a route.
      *
      * @param \Illuminate\Routing\Route $route
@@ -292,6 +428,7 @@ class RouteCollector implements RouteCollectorInterface
             'validation_rules' => $validationRules,
             'prefix' => $action['prefix'] ?? null,
             'namespace' => $action['namespace'] ?? null,
+            'is_third_party' => $this->isThirdPartyRoute($route),
         ];
     }
 
