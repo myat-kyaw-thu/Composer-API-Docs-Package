@@ -1,19 +1,22 @@
 # Laravel API Visibility
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Packagist Version](https://img.shields.io/packagist/v/vendor/laravel-api-visibility)](https://packagist.org/packages/vendor/laravel-api-visibility)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Packagist Version](https://img.shields.io/packagist/v/myat-kyaw-thu/laravel-api-visibility)](https://packagist.org/packages/myat-kyaw-thu/laravel-api-visibility)
 
-**Laravel API Visibility** is a developer-focused package that provides automatic API route documentation and live previewing of JSON/Markdown responses. It aims to be a lightweight, expressive alternative to Swagger — focused on Developer Experience (DX), speed, and readability.
+**Laravel API Visibility** is a developer-focused Laravel package that provides automatic API route documentation and live previewing capabilities. It serves as a lightweight, expressive alternative to Swagger with emphasis on Developer Experience (DX), speed, and readability.
 
 ---
 
 ## 🚀 Features
 
-- 📖 Auto-generates API docs from registered routes and controller methods
-- 🧠 Extracts validation rules from FormRequest classes
-- 📂 Groups routes by namespace, prefix, and middleware
-- 🔍 Live preview of actual JSON or Markdown responses
-- 🛠 Customizable Blade views and configurable route settings
-- 🧪 Fully testable, SOLID-based architecture
+- 📖 **Auto-generates API documentation** from registered Laravel routes and controller methods
+- 🧠 **Extracts validation rules** from FormRequest classes automatically
+- 📂 **Groups routes** by namespace, prefix, and middleware for better organization
+- 🔍 **Live preview** of actual JSON/Markdown responses
+- � ️ **Third-party route filtering** with configurable inclusion/exclusion rules
+- 🎛️ **Flexible configuration** with environment variable support
+- 🛠️ **Customizable Blade views** and configurable route settings
+- 🧪 **Fully testable** with SOLID-based architecture
+- ⚡ **Performance optimized** for large route collections
 
 ---
 
@@ -22,13 +25,20 @@
 Install via Composer:
 
 ```bash
-composer require vendor/laravel-api-visibility
+composer require myat-kyaw-thu/laravel-api-visibility
 ```
 
-Optionally, publish the config and views:
+The package will automatically register itself via Laravel's package discovery.
+
+### Publishing Assets
+
+Optionally, publish the configuration and views:
 
 ```bash
+# Publish configuration file
 php artisan vendor:publish --tag=api-visibility-config
+
+# Publish Blade views for customization
 php artisan vendor:publish --tag=api-visibility-views
 ```
 
@@ -36,20 +46,72 @@ php artisan vendor:publish --tag=api-visibility-views
 
 ## 🔧 Configuration
 
-Edit the published configuration file `config/api-visibility.php` to customize routes and behavior:
+The package works out of the box with sensible defaults. For customization, edit `config/api-visibility.php`:
 
 ```php
 return [
-    'docs_route'      => '/docs',
-    'preview_route'   => '/preview',
-    'enable_preview'  => true,
-    'middleware'      => ['web'],
+    // Enable or disable the package
+    'enabled' => env('API_VISIBILITY_ENABLED', true),
+    
+    // Enable or disable live preview feature
+    'enable_preview' => env('API_VISIBILITY_PREVIEW_ENABLED', true),
+    
+    // Route prefix (empty by default)
+    'route_prefix' => env('API_VISIBILITY_ROUTE_PREFIX', ''),
+    
+    // Middleware for documentation routes
+    'middleware' => ['web'],
+    
+    // Exclude routes with specific middleware
+    'exclude_middleware' => ['auth.basic'],
+    
+    // Exclude specific URIs
+    'exclude_uris' => [
+        '/', 'docs', 'preview', '_ignition/*'
+    ],
+    
+    // Exclude routes with specific prefixes
+    'exclude_prefixes' => ['_debugbar', '_ignition'],
+    
+    // Exclude routes from specific namespaces
+    'exclude_namespaces' => [
+        'Laravel\Sanctum', 'Laravel\Fortify'
+    ],
+    
+    // Third-party route filtering
+    'include_third_party_routes' => env('API_VISIBILITY_INCLUDE_THIRD_PARTY', false),
+    
+    // Allowed third-party namespaces (whitelist)
+    'allowed_third_party_namespaces' => [
+        // 'MyCompany\\MyPackage\\',
+    ],
+    
+    // Third-party namespaces to exclude
+    'third_party_namespaces' => [
+        'Filament\\', 'Livewire\\', 'Spatie\\', 'Barryvdh\\'
+    ],
+    
+    // Response formatters
+    'formatters' => [
+        'json' => JsonFormatter::class,
+    ],
 ];
+```
+
+### Environment Variables
+
+```env
+API_VISIBILITY_ENABLED=true
+API_VISIBILITY_PREVIEW_ENABLED=true
+API_VISIBILITY_ROUTE_PREFIX=""
+API_VISIBILITY_INCLUDE_THIRD_PARTY=false
 ```
 
 ---
 
-## 📖 Viewing API Documentation
+## 📖 Usage
+
+### Viewing API Documentation
 
 Visit the documentation in your browser:
 
@@ -57,91 +119,192 @@ Visit the documentation in your browser:
 http://your-app.test/docs
 ```
 
-Displays all API routes with:
+The documentation displays:
+- **Route URI** and **HTTP methods**
+- **Controller** and **method** information
+- **Middleware** applied to routes
+- **Validation rules** extracted from FormRequest classes
+- **Route grouping** by prefix, namespace, or middleware
+- **Third-party route** indicators
 
-- URI
-- HTTP Method
-- Controller & Method
-- Validation Rules
-- Middleware
+### Live Response Preview
 
----
-
-## 🔍 Live Preview
-
-To see actual responses for a given route:
+Preview actual route responses:
 
 ```
+# Preview specific route
 http://your-app.test/preview/{routeName}
-```
 
-Or visit:
-
-```
+# Preview index page
 http://your-app.test/preview
 ```
 
-Shows:
-
-- Pretty-printed JSON
-- Markdown as HTML
-- HTTP status and headers
+Features:
+- **Pretty-printed JSON** responses
+- **HTTP status codes** and **headers**
+- **Request parameter** handling
+- **Multiple HTTP methods** support (GET, POST, PUT, DELETE)
+- **Error response** handling
 
 ---
 
-## 🧱 Example
+## 🧱 Example Usage
 
 ```php
 // routes/api.php
-Route::post('/register', [AuthController::class, 'register'])
-    ->name('auth.register');
+Route::prefix('api/v1')->group(function () {
+    Route::post('/users', [UserController::class, 'store'])
+        ->name('api.users.store');
+    
+    Route::get('/users/{id}', [UserController::class, 'show'])
+        ->name('api.users.show');
+});
 
-// app/Http/Controllers/AuthController.php
-class AuthController extends Controller
+// app/Http/Controllers/UserController.php
+class UserController extends Controller
 {
-    public function register(RegisterRequest $request)
+    public function store(CreateUserRequest $request)
     {
+        $user = User::create($request->validated());
+        
         return response()->json([
-            'message' => 'Registered successfully',
-        ]);
+            'message' => 'User created successfully',
+            'user' => $user
+        ], 201);
+    }
+    
+    public function show(User $user)
+    {
+        return response()->json(['user' => $user]);
     }
 }
 
-// app/Http/Requests/RegisterRequest.php
-class RegisterRequest extends FormRequest
+// app/Http/Requests/CreateUserRequest.php
+class CreateUserRequest extends FormRequest
 {
     public function rules()
     {
         return [
-            'email'    => 'required|email',
-            'password' => 'required|min:8',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8|confirmed',
         ];
     }
 }
 ```
 
-Access `/docs` and `/preview/auth.register` to view this route.
+### Documentation Output
 
----
+Visit `/docs` to see:
 
-## 🧾 Example Output
+| URI | Method | Controller | Validation Rules | Middleware |
+|-----|--------|------------|------------------|------------|
+| `api/v1/users` | POST | `UserController@store` | `name: required\|string\|max:255`<br>`email: required\|email\|unique:users`<br>`password: required\|string\|min:8\|confirmed` | `web` |
+| `api/v1/users/{id}` | GET | `UserController@show` | - | `web` |
 
-### At `/docs`
+### Preview Output
 
-| URI         | Method | Controller@Method         | Validation Rules |
-| ----------- | ------ | ------------------------- | ---------------- | ----------------------------- | ------ |
-| `/register` | POST   | `AuthController@register` | `email: required | email`<br>`password: required | min:8` |
-
-### At `/preview/auth.register`
+Visit `/preview/api.users.store` with POST data to see:
 
 ```json
 {
-  "message": "Registered successfully"
+  "message": "User created successfully",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "created_at": "2025-01-23T10:30:00.000000Z",
+    "updated_at": "2025-01-23T10:30:00.000000Z"
+  }
 }
 ```
 
 ---
 
+## 🛡️ Third-Party Route Filtering
+
+The package includes intelligent third-party route filtering to keep your documentation clean:
+
+### Default Behavior
+- **Excludes** routes from common packages (Filament, Livewire, Spatie, etc.)
+- **Includes** your application routes by default
+- **Configurable** via environment variables
+
+### Customization
+```php
+// Include all third-party routes
+'include_third_party_routes' => true,
+
+// Allow specific third-party packages
+'allowed_third_party_namespaces' => [
+    'MyCompany\\MyPackage\\',
+    'TrustedVendor\\Package\\',
+],
+
+// Add custom third-party namespaces to exclude
+'third_party_namespaces' => [
+    'CustomPackage\\',
+    'AnotherVendor\\',
+],
+```
+
+---
+
+## 🎨 Facade Usage
+
+Use the `ApiVisibility` facade for programmatic access:
+
+```php
+use myatKyawThu\LaravelApiVisibility\Facades\ApiVisibility;
+
+// Get all documented routes
+$routes = ApiVisibility::getDocumentation();
+
+// Preview a specific route response
+$preview = ApiVisibility::previewResponse('api.users.store', [
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+    'password' => 'secret123',
+    'password_confirmation' => 'secret123'
+]);
+```
+
+---
+
+## 🧪 Testing
+
+Run the test suite:
+
+```bash
+# Run all tests
+composer test
+
+# Run tests with coverage
+composer test-coverage
+```
+
+The package includes comprehensive tests covering:
+- Route collection and filtering
+- Documentation generation
+- Response previewing
+- Third-party route detection
+- Configuration handling
+
+---
+
+## 📋 Requirements
+
+- **PHP**: ^8.0
+- **Laravel**: ^8.0|^9.0|^10.0|^11.0|^12.0
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
 ## 📃 License
 
-This project is open-sourced software licensed under the MIT License. See [LICENSE](LICENSE) for details.
+This project is open-sourced software licensed under the [MIT License](LICENSE).
