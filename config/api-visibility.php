@@ -61,6 +61,30 @@ return [
         'Laravel\Nova',
     ],
 
+    // Include third-party package routes (default: false)
+    'include_third_party_routes' => env('API_VISIBILITY_INCLUDE_THIRD_PARTY', false),
+
+    // Allowed third-party namespaces (these will be included even when third-party filtering is enabled)
+    'allowed_third_party_namespaces' => [
+        // Example: 'MyCompany\\MyPackage\\',
+    ],
+
+    // Common third-party package namespaces to exclude (when include_third_party_routes is false)
+    'third_party_namespaces' => [
+        'Filament\\',
+        'Livewire\\',
+        'Laravel\\Sanctum\\',
+        'Laravel\\Fortify\\',
+        'Laravel\\Jetstream\\',
+        'Laravel\\Horizon\\',
+        'Laravel\\Nova\\',
+        'Laravel\\Telescope\\',
+        'Spatie\\',
+        'Barryvdh\\',
+        'Facade\\Ignition\\',
+        'Nunomaduro\\Collision\\',
+    ],
+
     // Custom formatters for response preview
     'formatters' => [
         'json' => JsonFormatter::class,
