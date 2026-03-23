@@ -7,167 +7,143 @@ use Illuminate\Routing\Controller;
 use Illuminate\Routing\Router;
 use myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface;
 use myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface;
-use myatKyawThu\LaravelApiVisibility\Exceptions\RouteParameterMissingException;
 use myatKyawThu\LaravelApiVisibility\Support\ErrorHandler;
+use myatKyawThu\LaravelApiVisibility\Support\ResponseStructureExtractor;
 use Throwable;
 
 class PreviewController extends Controller
 {
-    /**
-     * The route collector instance.
-     *
-     * @var \myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface
-     */
-    protected $routeCollector;
+    protected RouteCollectorInterface $routeCollector;
+    protected ResponsePreviewerInterface $responsePreviewer;
+    protected Router $router;
+    protected ErrorHandler $errorHandler;
+    protected ResponseStructureExtractor $extractor;
 
-    /**
-     * The response previewer instance.
-     *
-     * @var \myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface
-     */
-    protected $responsePreviewer;
-
-    /**
-     * The router instance.
-     *
-     * @var \Illuminate\Routing\Router
-     */
-    protected $router;
-
-    /**
-     * The error handler instance.
-     *
-     * @var \myatKyawThu\LaravelApiVisibility\Support\ErrorHandler
-     */
-    protected $errorHandler;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @param \myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface $routeCollector
-     * @param \myatKyawThu\LaravelApiVisibility\Contracts\ResponsePreviewerInterface $responsePreviewer
-     * @param \Illuminate\Routing\Router $router
-     * @return void
-     */
     public function __construct(
         RouteCollectorInterface $routeCollector,
         ResponsePreviewerInterface $responsePreviewer,
         Router $router
     ) {
-        $this->routeCollector = $routeCollector;
+        $this->routeCollector    = $routeCollector;
         $this->responsePreviewer = $responsePreviewer;
-        $this->router = $router;
-        $this->errorHandler = new ErrorHandler();
+        $this->router            = $router;
+        $this->errorHandler      = new ErrorHandler();
+        $this->extractor         = new ResponseStructureExtractor();
     }
 
-    /**
-     * Display the preview page.
-     *
-     * @return \Illuminate\View\View
-     */
+    /** List page — just the sidebar */
     public function index()
     {
         try {
-            $routes = $this->routeCollector->getNamedRoutes();
-
             return view('api-visibility::preview', [
-                'routes' => $routes,
+                'routes'           => $this->routeCollector->getNamedRoutes(),
+                'selectedRoute'    => null,
+                'selectedRouteInfo'=> null,
+                'analysis'         => null,
             ]);
-        } catch (Throwable $exception) {
-            return view('api-visibility::error', [
-                'error' => $this->errorHandler->handle($exception),
-            ]);
+        } catch (Throwable $e) {
+            return view('api-visibility::error', ['error' => $this->errorHandler->handle($e)]);
         }
     }
 
-    /**
-     * Display the preview for a specific route.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param string $routeName
-     * @return \Illuminate\View\View
-     */
+    /** Detail page for one route — pure static analysis, NO HTTP execution */
     public function show(Request $request, string $routeName)
     {
         try {
-            $routes = $this->routeCollector->getNamedRoutes();
-            $parameters = $request->all();
+            $routeInfo = $this->routeCollector->getRouteByName($routeName);
 
-            // Get the route to check for required parameters
-            $route = $this->router->getRoutes()->getByName($routeName);
-
-            if ($route) {
-                // Check for missing required parameters
-                $this->checkRequiredParameters($route, $parameters);
-            }
-
-            // Handle dynamic parameters
-            if ($request->has('param_key') && $request->has('param_value')) {
-                $keys = $request->input('param_key', []);
-                $values = $request->input('param_value', []);
-
-                foreach ($keys as $index => $key) {
-                    if (!empty($key) && isset($values[$index])) {
-                        $parameters[$key] = $values[$index];
-                    }
-                }
-
-                // Remove the param_key and param_value from parameters
-                unset($parameters['param_key'], $parameters['param_value']);
-            }
-
-            $result = $this->responsePreviewer->preview($routeName, $parameters);
-
-            if (isset($result['error']) && $result['error'] === true) {
-                // This is an error response from our error handler
-                return view('api-visibility::error', [
-                    'error' => $result,
-                ]);
-            }
+            $analysis = $this->analyse($routeInfo);
 
             return view('api-visibility::preview', [
-                'routes' => $routes,
-                'selectedRoute' => $routeName,
-                'result' => $result,
+                'routes'            => $this->routeCollector->getNamedRoutes(),
+                'selectedRoute'     => $routeName,
+                'selectedRouteInfo' => $routeInfo,
+                'analysis'          => $analysis,
             ]);
-        } catch (Throwable $exception) {
-            return view('api-visibility::error', [
-                'error' => $this->errorHandler->handle($exception),
-            ]);
+        } catch (Throwable $e) {
+            return view('api-visibility::error', ['error' => $this->errorHandler->handle($e)]);
         }
     }
 
+    // -------------------------------------------------------------------------
+
     /**
-     * Check if all required parameters are provided.
-     *
-     * @param \Illuminate\Routing\Route $route
-     * @param array $parameters
-     * @return void
-     *
-     * @throws \myatKyawThu\LaravelApiVisibility\Exceptions\RouteParameterMissingException
+     * Build the full analysis array for a route — no HTTP calls.
      */
-    protected function checkRequiredParameters($route, array $parameters)
+    private function analyse(?array $routeInfo): ?array
     {
-        $uri = $route->uri();
-        $requiredParams = [];
+        if (!$routeInfo) return null;
 
-        // Extract required parameters from the URI
-        preg_match_all('/\{([^?}]+)(?:\:[^}]+)?\}/', $uri, $matches);
+        $method     = strtoupper($routeInfo['methods'][0] ?? 'GET');
+        $controller = $routeInfo['controller'] ?? null;
+        $middleware = $routeInfo['middleware'] ?? [];
 
-        if (isset($matches[1]) && !empty($matches[1])) {
-            $requiredParams = $matches[1];
+        // Detect auth requirement
+        $requiresAuth = collect($middleware)->contains(fn($m) =>
+            str_contains($m, 'auth') || str_contains($m, 'sanctum') || str_contains($m, 'jwt')
+        );
+
+        // Validation / request body
+        $validationRules = $routeInfo['validation_rules'] ?? [];
+        $examplePayload  = !empty($validationRules)
+            ? $this->extractor->generateExamplePayload($validationRules)
+            : null;
+
+        // URI params
+        $uriParams = $this->extractUriParams($routeInfo['uri'] ?? '');
+
+        // Response structure from controller code
+        $responses = ['success_responses' => [], 'error_responses' => [], 'resources' => []];
+        if ($controller && str_contains($controller, '@')) {
+            [$class, $action] = explode('@', $controller, 2);
+            $responses = $this->extractor->extractFromController($class, $action);
         }
 
-        // Check if all required parameters are provided
-        $missingParams = [];
-        foreach ($requiredParams as $param) {
-            if (!isset($parameters[$param]) || (is_string($parameters[$param]) && trim($parameters[$param]) === '')) {
-                $missingParams[] = $param;
+        // Build success / error JSON strings
+        $successJson = null;
+        $errorJson   = null;
+
+        if (!empty($responses['success_responses'])) {
+            $first = $responses['success_responses'][0];
+            $successJson = [
+                'status' => $first['status'],
+                'body'   => $this->extractor->renderMockJson($first['body']),
+            ];
+        }
+
+        if (!empty($responses['error_responses'])) {
+            $errorJsons = [];
+            foreach ($responses['error_responses'] as $err) {
+                $errorJsons[] = [
+                    'status' => $err['status'],
+                    'body'   => $this->extractor->renderMockJson($err['body']),
+                ];
             }
+            $errorJson = $errorJsons;
         }
 
-        if (!empty($missingParams)) {
-            throw new RouteParameterMissingException($route->getName(), $missingParams);
+        return [
+            'method'          => $method,
+            'uri'             => $routeInfo['uri'],
+            'controller'      => $controller,
+            'middleware'      => $middleware,
+            'requires_auth'   => $requiresAuth,
+            'uri_params'      => $uriParams,
+            'validation_rules'=> $validationRules,
+            'example_payload' => $examplePayload,
+            'success_response'=> $successJson,
+            'error_responses' => $errorJson,
+            'resources'       => $responses['resources'],
+        ];
+    }
+
+    private function extractUriParams(string $uri): array
+    {
+        preg_match_all('/\{(\w+?)(\?)?\}/', $uri, $m);
+        $params = [];
+        foreach ($m[1] as $i => $name) {
+            $params[] = ['name' => $name, 'required' => ($m[2][$i] ?? '') !== '?'];
         }
+        return $params;
     }
 }
