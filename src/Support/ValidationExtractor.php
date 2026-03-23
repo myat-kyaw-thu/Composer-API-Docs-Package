@@ -30,12 +30,20 @@ class ValidationExtractor
         // Try to get rules from the rules() method
         if ($reflection->hasMethod('rules')) {
             try {
-                $instance = $reflection->newInstance();
+                // Try to instantiate without constructor arguments first
+                $instance = $reflection->newInstanceWithoutConstructor();
                 $rules = $instance->rules();
 
                 return $this->formatRules($rules);
             } catch (\Exception $e) {
-                // Silently fail if instantiation fails
+                // If that fails, try with constructor
+                try {
+                    $instance = $reflection->newInstance();
+                    $rules = $instance->rules();
+                    return $this->formatRules($rules);
+                } catch (\Exception $e2) {
+                    // Silently fail if instantiation fails
+                }
             }
         }
 
@@ -69,7 +77,16 @@ class ValidationExtractor
             if (is_string($rule)) {
                 $formatted[$field] = explode('|', $rule);
             } elseif (is_array($rule)) {
-                $formatted[$field] = $rule;
+                // Convert Rule objects to their class names
+                $formatted[$field] = array_map(function($item) {
+                    if (is_object($item)) {
+                        return class_basename(get_class($item));
+                    }
+                    return (string)$item;
+                }, $rule);
+            } elseif (is_object($rule)) {
+                // Single Rule object
+                $formatted[$field] = [class_basename(get_class($rule))];
             }
         }
 
