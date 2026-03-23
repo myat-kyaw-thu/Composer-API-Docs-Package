@@ -22,6 +22,13 @@ class RouteCollector implements RouteCollectorInterface
     protected $validationExtractor;
 
     /**
+     * Cache for validation rules extraction.
+     *
+     * @var array
+     */
+    private $validationRulesCache = [];
+
+    /**
      * Create a new route collector instance.
      *
      * @param Router $router
@@ -61,35 +68,65 @@ class RouteCollector implements RouteCollectorInterface
     {
         return collect($this->router->getRoutes()->getRoutes())
             ->filter(function ($route) {
-                // Only include routes with names
-                return $route->getName() !== null;
-            })
-            ->filter(function ($route) {
                 // Filter out routes that should be excluded
                 return $this->shouldIncludeRoute($route, true);
             })
             ->map(function ($route) {
                 return $this->extractRouteInformation($route);
             })
+            ->filter(function ($routeInfo) {
+                // Only include routes that have a name (generated or explicit)
+                return !empty($routeInfo['name']);
+            })
             ->values()
             ->all();
     }
 
     /**
-     * Get a specific route by name.
+     * Get a specific route by name (including auto-generated names).
      *
      * @param string $name
      * @return array|null
      */
     public function getRouteByName(string $name): ?array
     {
+        // Try Laravel's native name lookup first (explicit route names)
         $route = $this->router->getRoutes()->getByName($name);
-
-        if (!$route) {
-            return null;
+        if ($route) {
+            return $this->extractRouteInformation($route);
         }
 
-        return $this->extractRouteInformation($route);
+        // Fall back: scan all routes and match auto-generated names.
+        // We generate the name cheaply (no validation extraction) to find the route,
+        // then do the full extraction only once we have a match.
+        foreach ($this->router->getRoutes()->getRoutes() as $route) {
+            $generatedName = $this->generateRouteName($route);
+            if ($generatedName === $name) {
+                return $this->extractRouteInformation($route);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Generate a route name without running validation extraction.
+     * Mirrors the logic in extractRouteInformation but is cheap.
+     */
+    private function generateRouteName($route): ?string
+    {
+        $name = $route->getName();
+        if ($name) return $name;
+
+        $action     = $route->getAction();
+        $controller = $action['controller'] ?? null;
+
+        if ($controller && str_contains($controller, '@')) {
+            [$controllerClass, $method] = explode('@', $controller, 2);
+            return strtolower(class_basename($controllerClass)) . '.' . $method;
+        }
+
+        return null;
     }
 
     /**
@@ -101,48 +138,54 @@ class RouteCollector implements RouteCollectorInterface
      */
     protected function shouldIncludeRoute($route, bool $forPreview = false): bool
     {
-        // For preview, we only need named routes
-        if (!$route->getName()) {
+        // Don't filter by name here - we'll generate names in extractRouteInformation
+        // Just check if it has a controller (API routes should have controllers)
+        $action = $route->getAction();
+        if (!isset($action['controller'])) {
             return false;
         }
 
         // Check for excluded middleware
         $excludedMiddleware = config('api-visibility.exclude_middleware', []);
-        foreach ($excludedMiddleware as $middleware) {
-            if (in_array($middleware, $route->gatherMiddleware())) {
-                return false;
-            }
-        }
-
-        // Check for excluded URIs
-        $excludedUris = config('api-visibility.exclude_uris', []);
-        $uri = $route->uri();
-
-        // Check for exact URI matches
-        if (in_array($uri, $excludedUris)) {
-            return false;
-        }
-
-        // Check for URI patterns with wildcards
-        foreach ($excludedUris as $excludedUri) {
-            // Convert route pattern to regex
-            if (strpos($excludedUri, '{') !== false) {
-                $pattern = preg_replace('/\{[^\}]+\}/', '[^/]+', $excludedUri);
-                $pattern = '#^' . str_replace('/', '\/', $pattern) . '$#';
-
-                if (preg_match($pattern, $uri)) {
+        if (!empty($excludedMiddleware)) {
+            $routeMiddleware = $route->gatherMiddleware();
+            foreach ($excludedMiddleware as $middleware) {
+                if (in_array($middleware, $routeMiddleware)) {
                     return false;
                 }
             }
         }
 
-        // Check for excluded namespaces
-        $action = $route->getAction();
-        $excludedNamespaces = config('api-visibility.exclude_namespaces', []);
+        // Check for excluded URIs
+        $excludedUris = config('api-visibility.exclude_uris', []);
+        if (!empty($excludedUris)) {
+            $uri = $route->uri();
 
-        if (isset($action['controller'])) {
+            // Check for exact URI matches
+            if (in_array($uri, $excludedUris)) {
+                return false;
+            }
+
+            // Check for URI patterns with wildcards
+            foreach ($excludedUris as $excludedUri) {
+                // Convert route pattern to regex
+                if (strpos($excludedUri, '{') !== false) {
+                    $pattern = preg_replace('/\{[^\}]+\}/', '[^/]+', $excludedUri);
+                    $pattern = '#^' . str_replace('/', '\/', $pattern) . '$#';
+
+                    if (preg_match($pattern, $uri)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Check for excluded namespaces
+        $excludedNamespaces = config('api-visibility.exclude_namespaces', []);
+        if (!empty($excludedNamespaces)) {
+            $controller = $action['controller'];
             foreach ($excludedNamespaces as $namespace) {
-                if (strpos($action['controller'], $namespace) === 0) {
+                if (strpos($controller, $namespace) === 0) {
                     return false;
                 }
             }
@@ -150,11 +193,12 @@ class RouteCollector implements RouteCollectorInterface
 
         // Check for excluded prefixes
         $excludedPrefixes = config('api-visibility.exclude_prefixes', []);
-        $prefix = $action['prefix'] ?? '';
-
-        foreach ($excludedPrefixes as $excludedPrefix) {
-            if ($prefix && strpos($prefix, $excludedPrefix) === 0) {
-                return false;
+        if (!empty($excludedPrefixes)) {
+            $prefix = $action['prefix'] ?? '';
+            foreach ($excludedPrefixes as $excludedPrefix) {
+                if ($prefix && strpos($prefix, $excludedPrefix) === 0) {
+                    return false;
+                }
             }
         }
 
@@ -419,8 +463,27 @@ class RouteCollector implements RouteCollectorInterface
             $validationRules = $this->extractValidationRules($controllerClass, $method);
         }
 
+        // Generate a name if one doesn't exist
+        $name = $route->getName();
+        if (!$name) {
+            // Generate name from controller and method
+            if ($controller && strpos($controller, '@') !== false) {
+                list($controllerClass, $method) = explode('@', $controller);
+                $controllerName = class_basename($controllerClass);
+                $name = strtolower($controllerName) . '.' . $method;
+            } else {
+                // Generate from URI and method
+                $uri = $route->uri();
+                $methods = $route->methods();
+                $method = reset($methods);
+                if ($method !== 'HEAD') {
+                    $name = strtolower($method) . '.' . str_replace('/', '.', $uri);
+                }
+            }
+        }
+
         return [
-            'name' => $route->getName(),
+            'name' => $name,
             'uri' => $route->uri(),
             'methods' => $route->methods(),
             'controller' => $controller,
@@ -428,7 +491,6 @@ class RouteCollector implements RouteCollectorInterface
             'validation_rules' => $validationRules,
             'prefix' => $action['prefix'] ?? null,
             'namespace' => $action['namespace'] ?? null,
-            'is_third_party' => $this->isThirdPartyRoute($route),
         ];
     }
 
@@ -441,10 +503,18 @@ class RouteCollector implements RouteCollectorInterface
      */
     protected function extractValidationRules(string $controllerClass, string $method): array
     {
+        $cacheKey = $controllerClass . '@' . $method;
+        
+        // Return cached result if available
+        if (isset($this->validationRulesCache[$cacheKey])) {
+            return $this->validationRulesCache[$cacheKey];
+        }
+
         try {
             $reflectionMethod = new ReflectionMethod($controllerClass, $method);
             $parameters = $reflectionMethod->getParameters();
 
+            // First, try to extract from FormRequest type hints
             foreach ($parameters as $parameter) {
                 $type = $parameter->getType();
                 if ($type && !$type->isBuiltin()) {
@@ -452,14 +522,74 @@ class RouteCollector implements RouteCollectorInterface
                     $rules = $this->validationExtractor->extractFromClass($className);
 
                     if (!empty($rules)) {
-                        return $rules;
+                        return $this->validationRulesCache[$cacheKey] = $rules;
                     }
+                }
+            }
+
+            // If no FormRequest found, try to extract from method body
+            // This handles cases where validation is done inline
+            $filename = $reflectionMethod->getFileName();
+            $startLine = $reflectionMethod->getStartLine();
+            $endLine = $reflectionMethod->getEndLine();
+
+            if ($filename && file_exists($filename)) {
+                $fileContent = file_get_contents($filename);
+                $lines = explode("\n", $fileContent);
+                $methodCode = implode("\n", array_slice($lines, $startLine - 1, $endLine - $startLine + 1));
+
+                // Look for $request->validate() or $this->validate() calls
+                if (preg_match('/(?:\$request|$this)->validate\s*\(\s*\[([^\]]+)\]/s', $methodCode, $matches)) {
+                    return $this->validationRulesCache[$cacheKey] = $this->parseInlineValidationRules($matches[1]);
                 }
             }
         } catch (\ReflectionException $e) {
             // Silently fail if reflection fails
         }
 
-        return [];
+        return $this->validationRulesCache[$cacheKey] = [];
+    }
+
+    /**
+     * Parse inline validation rules from method code.
+     *
+     * @param string $rulesCode
+     * @return array
+     */
+    protected function parseInlineValidationRules(string $rulesCode): array
+    {
+        $rules = [];
+        $lines = explode("\n", $rulesCode);
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || $line === ',') {
+                continue;
+            }
+
+            // Match 'field' => 'rule|rule' or 'field' => ['rule', 'rule']
+            if (preg_match('/[\'"](\w+)[\'"]\s*=>\s*(.+?)(?:,|$)/s', $line, $matches)) {
+                $field = $matches[1];
+                $ruleValue = trim($matches[2], " ,;");
+
+                // Handle array format
+                if (preg_match('/\[(.+?)\]/s', $ruleValue, $arrayMatches)) {
+                    $ruleArray = [];
+                    $items = explode(',', $arrayMatches[1]);
+                    foreach ($items as $item) {
+                        $item = trim($item, " '\"");
+                        if (!empty($item)) {
+                            $ruleArray[] = $item;
+                        }
+                    }
+                    $rules[$field] = $ruleArray;
+                } else {
+                    // Handle string format
+                    $rules[$field] = explode('|', $ruleValue);
+                }
+            }
+        }
+
+        return $rules;
     }
 }
