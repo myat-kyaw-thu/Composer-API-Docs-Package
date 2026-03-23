@@ -4,7 +4,6 @@ namespace myatKyawThu\LaravelApiVisibility\Core;
 
 use myatKyawThu\LaravelApiVisibility\Contracts\DocumentationGeneratorInterface;
 use myatKyawThu\LaravelApiVisibility\Contracts\RouteCollectorInterface;
-use myatKyawThu\LaravelApiVisibility\Support\RouteGrouping;
 
 class DocumentationGenerator implements DocumentationGeneratorInterface
 {
@@ -14,20 +13,13 @@ class DocumentationGenerator implements DocumentationGeneratorInterface
     protected $routeCollector;
 
     /**
-     * @var RouteGrouping
-     */
-    protected $routeGrouping;
-
-    /**
      * Create a new documentation generator instance.
      *
      * @param RouteCollectorInterface $routeCollector
-     * @param RouteGrouping $routeGrouping
      */
-    public function __construct(RouteCollectorInterface $routeCollector, RouteGrouping $routeGrouping)
+    public function __construct(RouteCollectorInterface $routeCollector)
     {
         $this->routeCollector = $routeCollector;
-        $this->routeGrouping = $routeGrouping;
     }
 
     /**
@@ -54,6 +46,6 @@ class DocumentationGenerator implements DocumentationGeneratorInterface
     {
         $routes = $this->generate();
 
-        return $this->routeGrouping->group($routes, $groupBy);
+        return collect($routes)->groupBy($groupBy)->toArray();
     }
 }
