@@ -1,310 +1,216 @@
 # Laravel API Visibility
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Packagist Version](https://img.shields.io/packagist/v/myat-kyaw-thu/laravel-api-visibility)](https://packagist.org/packages/myat-kyaw-thu/laravel-api-visibility)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Packagist Version](https://img.shields.io/packagist/v/myat-kyaw-thu/laravel-api-visibility)](https://packagist.org/packages/myat-kyaw-thu/laravel-api-visibility)
+[![PHP](https://img.shields.io/badge/PHP-%5E8.0-blue)](https://php.net)
+[![Laravel](https://img.shields.io/badge/Laravel-8--12-red)](https://laravel.com)
 
-**Laravel API Visibility** is a developer-focused Laravel package that provides automatic API route documentation and live previewing capabilities. It serves as a lightweight, expressive alternative to Swagger with emphasis on Developer Experience (DX), speed, and readability.
-
----
-
-## 🚀 Features
-
-- 📖 **Auto-generates API documentation** from registered Laravel routes and controller methods
-- 🧠 **Extracts validation rules** from FormRequest classes automatically
-- 📂 **Groups routes** by namespace, prefix, and middleware for better organization
-- 🔍 **Live preview** of actual JSON/Markdown responses
-- � ️ **Third-party route filtering** with configurable inclusion/exclusion rules
-- 🎛️ **Flexible configuration** with environment variable support
-- 🛠️ **Customizable Blade views** and configurable route settings
-- 🧪 **Fully testable** with SOLID-based architecture
-- ⚡ **Performance optimized** for large route collections
+A developer-focused Laravel package that automatically generates API route documentation and provides static endpoint analysis. Designed as a lightweight alternative to Swagger — no annotations, no YAML, no configuration required to get started.
 
 ---
 
-## 📦 Installation
+## Requirements
 
-Install via Composer:
+- PHP `^8.0`
+- Laravel `^8.0 | ^9.0 | ^10.0 | ^11.0 | ^12.0`
+
+---
+
+## Installation
 
 ```bash
 composer require myat-kyaw-thu/laravel-api-visibility
 ```
 
-The package will automatically register itself via Laravel's package discovery.
+The package auto-registers via Laravel's package discovery. No manual provider registration needed.
 
-### Publishing Assets
-
-Optionally, publish the configuration and views:
+### Publish config (optional)
 
 ```bash
-# Publish configuration file
 php artisan vendor:publish --tag=api-visibility-config
+```
 
-# Publish Blade views for customization
+### Publish views (optional)
+
+```bash
 php artisan vendor:publish --tag=api-visibility-views
 ```
 
 ---
 
-## 🔧 Configuration
+## Routes
 
-The package works out of the box with sensible defaults. For customization, edit `config/api-visibility.php`:
+The package registers two routes automatically:
+
+| URL | Description |
+|-----|-------------|
+| `/docs` | Route documentation overview |
+| `/preview/{routeName}` | Static endpoint analysis for a specific route |
+
+Both routes are protected by `EnsureDevEnvironment` middleware — they only work when `APP_ENV` is not `production`.
+
+---
+
+## /docs page
+
+Displays all collected application routes in a dark compact table UI, grouped by URI prefix.
+
+Features:
+- Filter by route, controller, HTTP method, or auth requirement
+- Per-row "Details" link to the `/preview` page
+- Per-row "Copy URL" button
+- **Export JSON** button — downloads a Postman Collection v2.1 file importable into Postman, Insomnia, and other API clients
+
+The export includes:
+- App name and base URL from `APP_NAME` / `APP_URL` env
+- All routes grouped into Postman folders by URI prefix
+- Per-request headers (`Accept`, `Content-Type`, `Authorization` if auth required)
+- Request body with example values derived from validation rules
+- Path variable definitions for `{param}` segments
+- Bearer token variable `{{token}}` pre-wired for auth routes
+
+---
+
+## /preview page
+
+Displays a detailed static analysis of a single endpoint. No HTTP requests are executed.
+
+The sidebar lists all routes. Selecting one shows:
+
+- HTTP method + full URL
+- Controller class and method
+- Middleware list
+- Auth requirement (detected from `auth`, `sanctum`, `jwt` middleware)
+- URI parameters (from `{param}` segments)
+- Request body fields with validation rule tags (from FormRequest classes)
+- Example request payload (JSON, with realistic values based on field names)
+- Success response structure (parsed from `response()->json(...)` in the controller)
+- Error responses with HTTP status codes
+- API Resources detected in the controller method
+
+### How static analysis works
+
+The `ResponseStructureExtractor` reads the controller source file via PHP Reflection, extracts the method body, and parses every `response()->json(...)` call using a recursive balanced-bracket parser. No HTTP calls are made. Results are cached per `Class@method` within the request lifecycle.
+
+The `ValidationExtractor` instantiates FormRequest classes via `ReflectionClass::newInstanceWithoutConstructor()` and calls `rules()` to extract validation rules without triggering constructor dependencies.
+
+---
+
+## Configuration
+
+File: `config/api-visibility.php`
 
 ```php
 return [
-    // Enable or disable the package
+    // Master switch
     'enabled' => env('API_VISIBILITY_ENABLED', true),
-    
-    // Enable or disable live preview feature
+
+    // Enable /preview routes
     'enable_preview' => env('API_VISIBILITY_PREVIEW_ENABLED', true),
-    
-    // Route prefix (empty by default)
+
+    // Route prefix (default: no prefix — /docs and /preview at root)
     'route_prefix' => env('API_VISIBILITY_ROUTE_PREFIX', ''),
-    
-    // Middleware for documentation routes
+
+    // Middleware applied to /docs and /preview routes
     'middleware' => ['web'],
-    
-    // Exclude routes with specific middleware
+
+    // Exclude routes that use any of these middleware
     'exclude_middleware' => ['auth.basic'],
-    
-    // Exclude specific URIs
+
+    // Exclude these exact URIs (supports {param} wildcards)
     'exclude_uris' => [
-        '/', 'docs', 'preview', '_ignition/*'
+        '/',
+        'docs',
+        'preview',
+        'preview/{routeName}',
+        '_ignition/health-check',
+        'sanctum/csrf-cookie',
     ],
-    
-    // Exclude routes with specific prefixes
+
+    // Exclude routes whose prefix starts with these strings
     'exclude_prefixes' => ['_debugbar', '_ignition'],
-    
-    // Exclude routes from specific namespaces
+
+    // Exclude routes from these controller namespaces
     'exclude_namespaces' => [
-        'Laravel\Sanctum', 'Laravel\Fortify'
+        'Laravel\Sanctum',
+        'Laravel\Fortify',
+        'Laravel\Jetstream',
+        'Laravel\Horizon',
+        'Laravel\Nova',
     ],
-    
-    // Third-party route filtering
+
+    // Include third-party package routes (default: false)
     'include_third_party_routes' => env('API_VISIBILITY_INCLUDE_THIRD_PARTY', false),
-    
-    // Allowed third-party namespaces (whitelist)
-    'allowed_third_party_namespaces' => [
-        // 'MyCompany\\MyPackage\\',
-    ],
-    
-    // Third-party namespaces to exclude
+
+    // Always include these namespaces even when third-party filtering is on
+    'allowed_third_party_namespaces' => [],
+
+    // Namespaces treated as third-party (excluded when include_third_party_routes is false)
     'third_party_namespaces' => [
-        'Filament\\', 'Livewire\\', 'Spatie\\', 'Barryvdh\\'
+        'Filament\\', 'Livewire\\', 'Spatie\\', 'Barryvdh\\',
+        'Laravel\\Sanctum\\', 'Laravel\\Fortify\\', 'Laravel\\Telescope\\',
     ],
-    
+
     // Response formatters
     'formatters' => [
-        'json' => JsonFormatter::class,
+        'json' => \myatKyawThu\LaravelApiVisibility\Core\Formatter\JsonFormatter::class,
     ],
 ];
 ```
 
-### Environment Variables
+### Environment variables
 
 ```env
 API_VISIBILITY_ENABLED=true
 API_VISIBILITY_PREVIEW_ENABLED=true
-API_VISIBILITY_ROUTE_PREFIX=""
+API_VISIBILITY_ROUTE_PREFIX=
 API_VISIBILITY_INCLUDE_THIRD_PARTY=false
 ```
 
 ---
 
-## 📖 Usage
+## Route naming
 
-### Viewing API Documentation
-
-Visit the documentation in your browser:
-
-```
-http://your-app.test/docs
-```
-
-The documentation displays:
-- **Route URI** and **HTTP methods**
-- **Controller** and **method** information
-- **Middleware** applied to routes
-- **Validation rules** extracted from FormRequest classes
-- **Route grouping** by prefix, namespace, or middleware
-- **Third-party route** indicators
-
-### Live Response Preview
-
-Preview actual route responses:
-
-```
-# Preview specific route
-http://your-app.test/preview/{routeName}
-
-# Preview index page
-http://your-app.test/preview
-```
-
-Features:
-- **Pretty-printed JSON** responses
-- **HTTP status codes** and **headers**
-- **Request parameter** handling
-- **Multiple HTTP methods** support (GET, POST, PUT, DELETE)
-- **Error response** handling
+Routes with an explicit `.name()` are used as-is. Routes without a name get an auto-generated name in the format `{controllername}.{method}` (e.g. `authcontroller.register`). These auto-generated names work with the `/preview/{routeName}` URL.
 
 ---
 
-## 🧱 Example Usage
+## How routes are collected
 
-```php
-// routes/api.php
-Route::prefix('api/v1')->group(function () {
-    Route::post('/users', [UserController::class, 'store'])
-        ->name('api.users.store');
-    
-    Route::get('/users/{id}', [UserController::class, 'show'])
-        ->name('api.users.show');
-});
+`RouteCollector` scans all registered Laravel routes and applies these filters in order:
 
-// app/Http/Controllers/UserController.php
-class UserController extends Controller
-{
-    public function store(CreateUserRequest $request)
-    {
-        $user = User::create($request->validated());
-        
-        return response()->json([
-            'message' => 'User created successfully',
-            'user' => $user
-        ], 201);
-    }
-    
-    public function show(User $user)
-    {
-        return response()->json(['user' => $user]);
-    }
-}
-
-// app/Http/Requests/CreateUserRequest.php
-class CreateUserRequest extends FormRequest
-{
-    public function rules()
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ];
-    }
-}
-```
-
-### Documentation Output
-
-Visit `/docs` to see:
-
-| URI | Method | Controller | Validation Rules | Middleware |
-|-----|--------|------------|------------------|------------|
-| `api/v1/users` | POST | `UserController@store` | `name: required\|string\|max:255`<br>`email: required\|email\|unique:users`<br>`password: required\|string\|min:8\|confirmed` | `web` |
-| `api/v1/users/{id}` | GET | `UserController@show` | - | `web` |
-
-### Preview Output
-
-Visit `/preview/api.users.store` with POST data to see:
-
-```json
-{
-  "message": "User created successfully",
-  "user": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "created_at": "2025-01-23T10:30:00.000000Z",
-    "updated_at": "2025-01-23T10:30:00.000000Z"
-  }
-}
-```
+1. Must have a controller (closure routes are excluded)
+2. Not in `exclude_middleware` list
+3. Not in `exclude_uris` list
+4. Not in `exclude_namespaces` list
+5. Not in `exclude_prefixes` list
+6. Not a package-internal route (`myatKyawThu\LaravelApiVisibility\*`)
+7. Not a Laravel framework route (`Illuminate\*`, `Laravel\*`)
+8. Not a third-party route (unless `include_third_party_routes` is true or namespace is in `allowed_third_party_namespaces`)
 
 ---
 
-## 🛡️ Third-Party Route Filtering
-
-The package includes intelligent third-party route filtering to keep your documentation clean:
-
-### Default Behavior
-- **Excludes** routes from common packages (Filament, Livewire, Spatie, etc.)
-- **Includes** your application routes by default
-- **Configurable** via environment variables
-
-### Customization
-```php
-// Include all third-party routes
-'include_third_party_routes' => true,
-
-// Allow specific third-party packages
-'allowed_third_party_namespaces' => [
-    'MyCompany\\MyPackage\\',
-    'TrustedVendor\\Package\\',
-],
-
-// Add custom third-party namespaces to exclude
-'third_party_namespaces' => [
-    'CustomPackage\\',
-    'AnotherVendor\\',
-],
-```
-
----
-
-## 🎨 Facade Usage
-
-Use the `ApiVisibility` facade for programmatic access:
+## Facade
 
 ```php
 use myatKyawThu\LaravelApiVisibility\Facades\ApiVisibility;
 
-// Get all documented routes
 $routes = ApiVisibility::getDocumentation();
-
-// Preview a specific route response
-$preview = ApiVisibility::previewResponse('api.users.store', [
-    'name' => 'John Doe',
-    'email' => 'john@example.com',
-    'password' => 'secret123',
-    'password_confirmation' => 'secret123'
-]);
 ```
 
 ---
 
-## 🧪 Testing (---Currently Working On it---)
-
-Run the test suite:
+## Running tests
 
 ```bash
-# Run all tests
 composer test
 
-# Run tests with coverage
+# With HTML coverage report (output in /coverage)
 composer test-coverage
 ```
 
-The package includes comprehensive tests covering:
-- Route collection and filtering
-- Documentation generation
-- Response previewing
-- Third-party route detection
-- Configuration handling
-
 ---
 
-## 📋 Requirements
+## License
 
-- **PHP**: ^8.0
-- **Laravel**: ^8.0|^9.0|^10.0|^11.0|^12.0
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
----
-
-## 📃 License
-
-This project is open-sourced software licensed under the [MIT License](LICENSE).
+MIT — see [LICENSE](LICENSE).
